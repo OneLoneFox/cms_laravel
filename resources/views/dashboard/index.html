@@ -1,0 +1,20 @@
+{% extends 'dashboard/base.html' %}
+    
+
+{% block content %}
+    <h1>Welcome {{ auth_user().name }}</h1>
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    var vm = new Vue({
+        mixins: [dashboard_mixin],
+        delimiters: ['[[', ']]'],
+        data: function(){
+            return {
+                active: 'home',
+            }
+        },
+    });
+</script>    
+{% endblock scripts %}

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMS | {% block title%}Dashboard{% endblock%}</title>
+
+    <!-- load Poppins and Roboto fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Roboto&display=swap" rel="stylesheet">
+
+    <!-- Core styles -->
+    <link rel="stylesheet" href="{{ asset('resources/core/css/shared.css') }}">
+    <link rel="stylesheet" href="{{ asset('resources/dashboard/css/main.css') }}">
+
+    <!-- Vuesax -->
+    <link href="https://unpkg.com/vuesax@4.0.1-alpha.25/dist/vuesax.min.css" rel="stylesheet">
+    <!-- Box icons -->
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    {% block styles %}
+        
+    {% endblock styles %}
+        
+</head>
+<body>
+    <div id="app">
+        
+        {# This is needed for some reason #}
+        {% block header_title %}{% endblock header_title %}
+        {% block header %}
+        <div id="header">
+            {% include 'dashboard/header.html' with {header_title: block('header_title')} %}
+        </div>
+        {% endblock header %}
+        <div id="main">
+            {% block content %}{% endblock content %}
+        </div>
+        {% block sidebar %}
+        <div id="sidebar">
+            {% include 'dashboard/sidebar.html' %}
+        </div>
+        {% endblock sidebar %}
+    </div>
+
+    {# Vuejs production #}
+    <!-- <script src="{{ asset('resources/core/js/vue.min.js') }}"></script> -->
+    {# Vuejs DEV ONLY #}
+    <script src="{{ asset('resources/core/js/vue.js') }}"></script>
+    <!-- Vuesax -->
+    <script src="https://unpkg.com/vuesax@4.0.1-alpha.25/dist/vuesax.min.js"></script>
+    <script src="{{ asset('resources/dashboard/js/dashboard_mixin.js') }}"></script>
+    {% block scripts %}
+    {% endblock scripts %}
+</body>
+</html>

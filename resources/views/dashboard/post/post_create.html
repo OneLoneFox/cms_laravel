@@ -1,0 +1,87 @@
+{% extends 'dashboard/base.html' %}
+
+
+{% block styles %}
+<link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" />
+<style>
+    form{
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        align-items: flex-end;
+        width: 350px;
+        background: #fff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 5px 5px 15px rgba(102, 109, 255, 0.1);
+    }
+</style>
+{% endblock styles %}
+
+{% block content %}
+    <form action="" method="post" enctype="multipart/form-data">
+        <div class="card">
+            <vs-input name="name" placeholder="Nombre" block>
+            {% for error in errors.get('name') %}
+                <template #message-danger>
+                  {{ error }}
+                </template>
+            {% endfor %}
+            </vs-input>
+            <vs-select placeholder="Visibilidad" v-model="value" block>
+                {% for error in errors.get('public') %}
+                    <template #message-danger>
+                    {{ error }}
+                    </template>
+                {% endfor %}
+                <vs-option label="Privado" value="0">
+                    Privado
+                </vs-option>
+                <vs-option label="Publico" value="1">
+                    Publico
+                </vs-option>
+            </vs-select>
+            <input name="public" type="hidden" :value="value">
+        </div>
+        <div class="card">
+        </div>
+        <vs-button>Crear</vs-button>
+    </form>
+    <file-pond
+        name="schedule_pdf"
+        ref="pond"
+        label-idle="Coloca el archivo del programa aqui..."
+        instant-upload="false"
+        accepted-file-types="application/pdf"
+        :files="files"
+        @updateFiles="handleUpdateFiles"
+    />
+{% endblock content %}
+
+
+{% block scripts %}
+<script src="https://unpkg.com/filepond"></script>
+<script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+<script src="https://unpkg.com/vue-filepond@^6.0.0"></script>
+<script>
+    var vm = new Vue({
+        mixins: [dashboard_mixin],
+        components: {
+          FilePond: vueFilePond.default(FilePondPluginFileValidateType),
+        },
+        data: function(){
+            return {
+                active: 'post',
+                value: '0',
+                files: [],
+            };
+        },
+        methods: {
+            handleUpdateFiles: function(){
+                console.log('added file');
+            }
+        }
+    });
+</script>
+{% endblock scripts %}
+    

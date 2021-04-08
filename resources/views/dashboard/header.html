@@ -1,0 +1,39 @@
+<h1 id="header-title">
+    
+    {% if header_title is empty %}
+        Dashboard header title
+    {% else %}
+        {{ header_title }}
+    {% endif %}
+        
+</h1>
+
+<div class="profile" @click="showMenu = !showMenu">
+    <vs-avatar color="#292929">
+        <template #text>
+            {{ auth_user().name|title }}
+        </template>
+    </vs-avatar>
+    <div class="info">
+        <p class="name">{{ auth_user().name }}</p>
+        <p class="email">{{ auth_user().email }}</p>
+    </div>
+    <i class='bx bx-chevron-down'></i>
+    <transition name="fade">
+        <div id="profile-menu" v-if="showMenu">
+            <a href="/cms/dashboard/profile/" class="menu-item">
+                <i class='bx bx-user'></i>
+                Perfíl
+            </a>
+            <a href="{{ route('logout') }}" class="menu-item">
+                <i class='bx bx-door-open' ></i>
+                Cerrar sesión
+            </a>
+            <span class="separator"></span>
+            <a href="/cms/dashboard/admins/register/" class="menu-item">
+                <i class='bx bx-check-shield'></i>
+                Registrar admin
+            </a>
+        </div>
+    </transition>
+</div>

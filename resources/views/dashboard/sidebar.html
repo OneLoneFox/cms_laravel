@@ -1,0 +1,22 @@
+<div id="hero">
+    <p>CMS</p>
+</div>
+
+<div id="nav">
+    <a href="{{ route('dashboard.home') }}" class="nav-item" :class="{active: active == 'home'}">
+        <i class='bx bxs-home'></i>
+        <span>Inicio</span>
+    </a>
+    <a href="{{ route('dashboard.admins') }}" class="nav-item" :class="{active: active == 'staff'}">
+        <i class='bx bxs-shield' ></i>
+        <span>Staff</span>
+    </a>
+    <a href="{{ route('dashboard.authors') }}" class="nav-item" :class="{active: active == 'authors'}">
+        <i class='bx bxs-user' ></i>
+        <span>Autores</span>
+    </a>
+    <a href="{{ route('dashboard.post_list') }}" class="nav-item" :class="{active: active == 'post'}">
+        <i class='bx bxs-card'></i>
+        <span>Publicaciones</span>
+    </a>
+</div>

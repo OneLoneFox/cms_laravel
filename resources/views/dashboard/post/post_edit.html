@@ -1,0 +1,425 @@
+{% extends 'dashboard/base.html' %}
+
+
+{% block styles %}
+<style>
+    #main-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        /* margin-bottom: 20px; */
+    }
+
+    #tab-row {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        align-items: center;
+        user-select: none;
+        min-width: 0;
+        overflow: hidden;
+        padding: 10px 0 20px 0;
+    }
+
+    #tab-row>.tab {
+        flex-grow: 0;
+        flex-shrink: 1;
+        flex-basis: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #fff;
+        min-width: 60px;
+        border-radius: 8px;
+        margin: 0 4px;
+        padding: 10px;
+        border: 1px solid transparent;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    #tab-row>.tab>.content {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #tab-row>.tab>.delete-icon {
+        /* Weird margin if not flex or grid */
+        display: flex;
+        padding: 2px;
+        border-radius: 2px;
+        font-size: 14px;
+    }
+
+    #tab-row>.tab>.delete-icon:hover {
+        background: #e2e4eb;
+    }
+
+    #tab-row>.tab.selected {
+        box-shadow: 5px 5px 15px rgba(102, 109, 255, 0.1);
+        border: 1px solid #d2d7e6;
+    }
+
+    #tab-row>button {
+        flex-shrink: 0;
+        position: sticky;
+        right: 0;
+    }
+
+    .button-icon {
+        width: 16px;
+        height: 16px;
+    }
+    img.icon{
+        width: 16px;
+        height: 16px;
+        margin-right: 12px;
+    }
+
+    #editor-wrapper {
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 5px 5px 15px rgba(102, 109, 255, 0.1);
+    }
+
+    #editor-head {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    #action-row {
+        display: flex;
+        align-items: center;
+    }
+
+    #empty-message {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, .6);
+        z-index: 2;
+    }
+
+    .modal-footer{
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+</style>
+<style>
+    .tab-list-enter-active, .tab-list-leave-active{
+        transition: all .3s ease;
+    }
+    .tab-list-leave-active{
+        position: absolute;
+        /* z-index -1 disables the animation but prevents the item from going crazy */
+        z-index: -1;
+    }
+    .tab-list-enter, .tab-list-leave-to{
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+</style>
+{% endblock styles %}
+
+{#% block header_title %#}
+{#{ object.name }#}
+{#% endblock header_title %#}
+
+
+{% block content %}
+<div id="main-controls">
+    <!-- fetch -->
+        <transition-group name="tab-list" id="tab-row" tag="div">
+            <span 
+                class="tab"
+                :class="{selected: selectedTab?.id == tab.id}"
+                @click="handleSelectedTab(tab)"
+                v-for="tab in tabs"
+                :key="tab.id"
+            >
+                <span class="content">[[ tab.name ]]</span>
+                <span class="delete-icon" @click.stop="deleteTab(tab)"><i class='bx bx-x'></i></span>
+            </span>
+            <vs-button :key="-1" icon transparent class="image-icon" @click="prompt">
+                <img class="button-icon" src="{{ asset('resources/dashboard/icons/plus.svg') }}" alt="">
+                <!-- <i class='bx bx-plus' ></i> -->
+            </vs-button>
+        </transition-group>
+    <div id="action-row">
+        <vs-button href="/cms/dashboard/posts/4/preview/" :disabled="tabs.length == 0" shadow>
+            <img src="{{ asset('resources/dashboard/icons/eye.svg') }}" alt="" class="icon">
+            Previsualizar
+        </vs-button>
+        <vs-button :disabled="tabs.length == 0" dark>
+            <img src="{{ asset('resources/dashboard/icons/calendar.svg') }}" alt="" class="icon">
+            Publicar
+        </vs-button>
+    </div>
+</div>
+<div id="editor-wrapper">
+    <div id="editor-head">
+        <vs-button :disabled="selectedTab === null" danger icon @click="revert"><i class='bx bx-undo'></i></vs-button>
+        <vs-button :disabled="selectedTab === null" :loading="saveIconLoading" dark icon @click="save"><i class='bx bx-save'></i>
+        </vs-button>
+    </div>
+    <div id="editorjs"></div>
+    <div id="empty-message" v-if="selectedTab === null">
+        Selecciona una página a editar o crea una página nueva.
+    </div>
+</div>
+
+<vs-dialog width="300px" not-center v-model="newTabModal">
+    <template #header>
+        <h4 class="not-margin">
+            Nombre de la página (debe ser unico).
+        </h4>
+    </template>
+
+    <div class="con-content">
+        <vs-input v-model="newTabName" placeholder="Nombre" block></vs-input>
+    </div>
+
+    <template #footer>
+        <div class="modal-footer">
+            <vs-button @click="createTab" :loading="createButtonLoading" transparent>
+                Guardar
+            </vs-button>
+            <vs-button @click="newTabModal=false" dark transparent>
+                Cancelar
+            </vs-button>
+        </div>
+    </template>
+</vs-dialog>
+{% endblock content %}
+
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/image@latest"></script>
+
+<script>
+    const POST_ID = {{ post.id }};
+</script>
+<script>
+    var vm = new Vue({
+        mixins: [dashboard_mixin],
+        delimiters: ['[[', ']]'],
+        data: function () {
+            return {
+                newTabModal: false,
+                newTabName: null,
+                active: 'post',
+                tabs: [],
+                counter: 0,
+                selectedTab: null,
+                editor: null,
+                editorData: null,
+                saveIconLoading: false,
+                createButtonLoading: false,
+            };
+        },
+        methods: {
+            prompt: function(){
+                this.newTabModal = true;
+            },
+            handleSelectedTab: function (tab) {
+                if(this.selectedTab?.id == tab.id){
+                    return;
+                }
+                this.selectedTab = tab;
+                let init = {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                };
+                fetch(`/cms/api/tabs/${tab.id}/`, init)
+                    .then(response => response.json())
+                    .then(data => {
+                        // if(data.success){
+                            let tabData = JSON.parse(data.data.content);
+                            this.editorData = tabData;
+                            this.refreshEditor(tabData);
+                            this.editor.configuration.tools.image.config.additionalRequestData.tab_id = this.selectedTab.id;
+                        // }else{
+                            // console.error(data.errors);
+                        // }
+                    }).catch(console.log);
+            },
+            updateTabContent: function (){
+                let data = {
+                    content: this.editorData,
+                };
+                let init = {
+                    method: 'PATCH',
+                    // headers: {
+                    //     'Content-Type': 'application/json',
+                    // },
+                    body: JSON.stringify(data),
+                };
+                fetch(`/cms/api/tabs/${this.selectedTab.id}/`, init)
+                    .then(response => response.json())
+                    .then(data => {
+                        let tabData = JSON.parse(data.data.content);
+                        this.editorData = tabData;
+                    });
+            },
+            deleteTab: function (tab) {
+                if (this.selectedTab?.id == tab.id) {
+                    this.selectedTab = null;
+                    // clear the editor if the deleted the selected tab
+                    this.editor.clear();
+                }
+                // First remove the element from the DOM to prevent double clicking while performing deletion
+                let removeIndex = this.tabs.map(item => item.id).indexOf(tab.id);
+                ~removeIndex && this.tabs.splice(removeIndex, 1);
+                let init = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                };
+                fetch(`/cms/api/tabs/${tab.id}/delete/`, init)
+                    // .then(response => response.json())
+                    .then((_) => '')
+                    .then(data => {
+                        // if(data.success){
+                            this.fetchTabs();
+                            // this.refreshEditor(this.editorData);
+                        // }else{
+                            // console.log(data.errors);
+                        // }
+                    }).catch(error => {console.log('E:', error)});
+                // console.log(`deleting tab ${tab.name} with id ${tab.id} (not really)`);
+                // let removeIndex = this.tabs.map(item => item.id).indexOf(tab.id);
+                // ~removeIndex && this.tabs.splice(removeIndex, 1);
+            },
+            createTab: function () {
+                // fake code
+                if(!this.newTabName){
+                    console.log('error empty name');
+                }
+                this.createButtonLoading = true;
+                let data = {
+                    'name': this.newTabName,
+                    'content': null,
+                    'post_id': POST_ID,
+                };
+                // fetch
+                let init = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                };
+                fetch('/cms/api/tabs/', init)
+                    .then(response => response.json())
+                    .then(data => {
+                        this.createButtonLoading = false;
+                        if(data){
+                            this.newTabName = null;
+                            this.newTabModal = false;
+                            this.fetchTabs();
+                        }else{
+                            console.error(data.errors);
+                        }
+                    }).catch(console.log);
+            },
+            fetchTabs: function(){
+                fetch(`/cms/api/posts/${POST_ID}/tabs/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        this.tabs = data.data;
+                    }).catch(console.log);
+            },
+            save: function () {
+                this.saveIconLoading = true;
+                this.editor.save().then(saveData => {
+                    this.editorData = saveData;
+                    console.log(JSON.stringify(saveData));
+                    this.updateTabContent();
+                    this.saveIconLoading = false;
+                });
+            },
+            revert: function () {
+                this.refreshEditor(this.editorData);
+            },
+            refreshEditor: function (data){
+                console.log('cleared');
+                this.editor.clear();
+                if(data != null){
+                    console.log('refreshing');
+                    this.editor.render(data);
+                }
+            },
+            initEditor: function () {
+                this.editor = new EditorJS({
+                    holder: "editorjs",
+                    /**
+                     * This Tool will be used as default
+                     */
+                    initialBlock: "paragraph",
+                    placeholder: "...",
+                    tools: {
+                        header: {
+                            class: Header,
+                            shortcut: "CMD+SHIFT+H",
+                        },
+                        list: {
+                            class: List,
+                            inlineToolbar: true,
+                        },
+                        table: {
+                            class: Table,
+                        },
+                        image: {
+                            class: ImageTool,
+                            config: {
+                                endpoints: {
+                                    byFile: '/cms/api/tabs/images/',
+                                    // Images by url will just return the original source with a custom handler
+                                    byUrl: '',
+                                },
+                                uploader: {
+                                    uploadByUrl: (fileUrl) => Promise.resolve({success: 1, file: {url: fileUrl,},}),
+                                },
+                                additionalRequestData: {
+                                    post_id: POST_ID,
+                                },
+                            },
+                        }
+                    },
+                    onReady: function () {
+                        // console.log("ready");
+                    },
+                    onChange: function () {
+                        // console.log("change");
+                    }
+                });
+            }
+        },
+        created: function(){
+            this.fetchTabs();
+            this.initEditor();
+        },
+        //mounted: function () {
+            // this.$nextTick(function () {
+            //     this.fetchTabs();
+            //     this.initEditor();
+            // });
+        //},
+    });
+</script>
+{% endblock scripts %}

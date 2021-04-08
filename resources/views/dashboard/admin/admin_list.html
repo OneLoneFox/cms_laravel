@@ -1,0 +1,56 @@
+{% extends 'dashboard/base.html' %}
+
+
+{% block styles %}
+<style>
+    #table {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.06);
+    }
+</style>
+{% endblock styles %}
+
+{% block content %}
+<div id="table">
+    <vs-table>
+        <template #thead>
+            <vs-tr>
+                <vs-th>Id</vs-th>
+                <vs-th>Nombre</vs-th>
+                <vs-th>Correo</vs-th>
+                <vs-th>Celular</vs-th>
+                <vs-th>Sexo</vs-th>
+            </vs-tr>
+        </template>
+        <template #tbody>
+            <vs-tr :key="i" v-for="(item, i) in users" :data="item">
+                <vs-td>[[ item.id ]]</vs-td>
+                <vs-td>[[ item.name ]]</vs-td>
+                <vs-td>[[ item.email ]]</vs-td>
+                <vs-td>[[ item.cellphone || "—" ]]</vs-td>
+                <vs-td>[[ item.sex || "—" ]]</vs-td>
+            </vs-tr>
+        </template>
+    </vs-table>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    const USERS = {{ admins|raw }};
+</script>
+<script>
+    var vm = new Vue({
+        mixins: [dashboard_mixin],
+        // delimiters: ['[[', ']]'],
+        data: function () {
+            return {
+                active: 'staff',
+                users: USERS,
+                // users: [],
+            }
+        },
+    });
+</script>
+{% endblock scripts %}

@@ -1,10 +1,5 @@
 <x-guest-layout>
     <x-auth-card>
-        <x-slot name="logo">
-            <a href="/">
-                <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-            </a>
-        </x-slot>
 
         <!-- Validation Errors -->
         <x-auth-validation-errors class="mb-4" :errors="$errors" />
@@ -25,6 +20,16 @@
 
                 <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required />
             </div>
+
+            <!-- Cellphone Number -->
+            <div class="mt-4">
+                <x-label for="cellphone" :value="__('Cellphone')" />
+
+                <x-input id="cellphone" class="block mt-1 w-full" type="text" name="cellphone" :value="old('cellphone')" required />
+            </div>
+
+            <!-- Sex -->
+            <input type="hidden" id="sex" name="sex" value="m">
 
             <!-- Password -->
             <div class="mt-4">

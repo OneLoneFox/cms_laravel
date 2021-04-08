@@ -1,0 +1,16 @@
+{% extends 'dashboard/base.html' %}
+
+
+{% block content %}
+    {{ dump(userObject) }}
+{% endblock content %}
+
+
+{% block scripts %}
+<script>
+    var vm = new Vue({
+        mixins: [dashboard_mixin],
+        delimiters: ['[[', ']]'],
+    });
+</script>
+{% endblock scripts %}
