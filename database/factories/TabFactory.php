@@ -22,7 +22,9 @@ class TabFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'name' => 'Inicio',
+            'is_front_page' => true,
+            'content' => null,
         ];
     }
 }

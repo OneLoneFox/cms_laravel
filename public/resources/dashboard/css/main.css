@@ -1,0 +1,165 @@
+a.btn{
+    text-decoration: none;
+}
+
+.btn{
+    height: 36px;
+	padding: 6px 16px;
+	border-radius: 8px;
+	background: var(--primary, blue);
+	color: #fff;
+	border: none;
+	cursor: pointer;
+	transition: box-shadow 280ms ease, filter 300ms ease;
+}
+.btn:disabled, .btn.disabled{
+	pointer-events: none;
+	opacity: 0.6;
+}
+.btn:hover, .btn:focus, .btn:active{
+	box-shadow: 2px 2px 5px 0 rgba(0, 0, 0, 0.4);
+}
+.btn:active{
+	filter: brightness(140%);
+}
+
+#app{
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-areas: 
+        "sidebar header"
+        "sidebar content"
+    ;
+    grid-template-rows: 90px 1fr;
+    grid-template-columns: minmax(250px, max-content) 1fr;
+    background-color: #F2F5FA;
+}
+#header{
+    grid-area: header;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    user-select: none;
+}
+    #header > .profile{
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+    }
+        #header > .profile > .info{
+            margin-left: 15px;
+            max-width: 200px;
+            overflow: hidden;
+        }
+            #header > .profile > .info > *{
+                color: #2C3E50;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                margin: 0;
+            }
+            #header > .profile > .info > .name{
+                font-weight: bold;
+            }
+            #header > .profile > .info > .email{
+                font-size: 12px;
+                opacity: .6;
+            }
+        #header > .profile > .bx{
+            font-size: 22px;
+            margin-left: 20px;
+        }
+#profile-menu{
+    right: 0;
+    top: calc(100% + 12px);
+    position: absolute;
+    padding: 5px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 2px 2px 8px 0 rgba(0,0,0,.09);
+    min-width: 200px;
+    z-index: 3;
+}
+    #profile-menu > .menu-item{
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: #2C3E50;
+        padding: 10px 15px;
+        border-radius: 8px;
+        transition: all 250ms ease;
+    }
+        #profile-menu > .menu-item > .bx{
+            margin-right: 15px;
+        }
+    #profile-menu > .menu-item:hover{
+        background: rgb(247, 249, 250);
+    }
+    #profile-menu.fade-enter-active, #profile-menu.fade-leave-active {
+        transition: opacity 150ms;
+    }
+    #profile-menu.fade-enter, #profile-menu.fade-leave-to{
+        opacity: 0;
+    }
+    #profile-menu > .separator{
+        display: block;
+        background: rgb(225, 232, 233);
+        margin: 5px 0;
+        height: .5px;
+        width: 100%;
+    }
+    
+#header-title{
+    margin: 0;
+}
+#main{
+    grid-area: content;
+    padding: 20px;
+    overflow: auto;
+}
+#sidebar{
+    display: grid;
+    grid-template-rows: 90px 1fr;
+    grid-area: sidebar;
+    align-content: center;
+    background: #fff;
+}
+    #hero{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    #hero > *{
+        font-weight: bold;
+        letter-spacing: 3px;
+        margin: 0;
+    }
+    #nav{
+        padding: 20px;
+    }
+    #nav > .nav-item{
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: #292929;
+        padding: 10px 15px;
+        border-radius: 8px;
+    }
+        #nav > .nav-item > .bx{
+            margin-right: 15px;
+        }
+        #nav > .nav-item:not(.active) > span{
+            opacity: .6;
+        }
+    #nav > .nav-item:not(:last-child){
+        margin-bottom: 10px;
+    }
+    #nav > .nav-item.active{
+        background: #292929;
+        color: #fff;
+    }
+    #nav > .nav-item:not(.active):hover{
+        background: rgb(247, 249, 250);
+    }

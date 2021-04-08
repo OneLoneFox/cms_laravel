@@ -16,7 +16,7 @@ class CreateCertificatesTable extends Migration
         Schema::create('certificates', function (Blueprint $table) {
             $table->id();
             $table->string('pdf');
-            $table->foreignId('workshop_id');
+            $table->foreignId('workshop_id')->onDelete('cascade');
             $table->foreignId('participant_id');
             $table->timestamps();
         });

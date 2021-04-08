@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Presentation;
+use App\Models\Author;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PresentationFactory extends Factory
@@ -22,7 +23,12 @@ class PresentationFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'title' => $this->faker->title,
+            'presentation_date' => now()->format('Y-m-d'),
+            'start_time' => '12:00:00',
+            'end_time' => '13:00:00',
+            'location' => 'location i don\'t care',
+            // 'post_id' => 1,
         ];
     }
 }

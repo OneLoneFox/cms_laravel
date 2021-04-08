@@ -11,6 +11,16 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    const ADMIN = 0;
+    const PARTICIPANT = 1;
+    const AUTHOR = 2;
+
+    const USER_TYPE_CHOICES = [
+        self::ADMIN => 'Admin',
+        self::PARTICIPANT => 'Participante',
+        self::AUTHOR => 'Autor',
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -20,6 +30,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'cellphone',
+        'sex',
+        'user_type',
     ];
 
     /**
@@ -40,4 +53,8 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function author(){
+        return $this->hasOne(Author::class);
+    }
 }

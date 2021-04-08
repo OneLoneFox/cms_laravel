@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\Post;
+use App\Models\Tab;
 
 class PostSeeder extends Seeder
 {
@@ -13,6 +15,9 @@ class PostSeeder extends Seeder
      */
     public function run()
     {
-        //
+        Post::factory()
+            ->count(10)
+            ->hasTabs(1)
+            ->create();
     }
 }

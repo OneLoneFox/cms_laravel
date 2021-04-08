@@ -15,10 +15,10 @@ class CreateTabsTable extends Migration
     {
         Schema::create('tabs', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->json('content');
+            $table->string('name');
+            $table->json('content')->nullable();
             $table->boolean('is_front_page');
-            $table->foreignId('post_id')->constrained();
+            $table->foreignId('post_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

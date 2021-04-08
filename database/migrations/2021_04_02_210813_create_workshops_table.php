@@ -19,6 +19,7 @@ class CreateWorkshopsTable extends Migration
             $table->string('host');
             $table->string('location');
             $table->tinyInteger('limit');
+            $table->foreignId('post_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

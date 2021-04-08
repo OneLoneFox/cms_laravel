@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAuthorsTable extends Migration
+class CreateTempImagesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,12 @@ class CreateAuthorsTable extends Migration
      */
     public function up()
     {
-        Schema::create('authors', function (Blueprint $table) {
+        Schema::create('temp_images', function (Blueprint $table) {
             $table->id();
-            $table->string('article');
-            $table->tinyInteger('status');
-            $table->foreignId('post_id')->constrained();
-            $table->foreignId('user_id')->constrained();
+            $table->string('path');
+            $table->foreignId('post_id');
+            $table->foreignId('tab_id');
+            $table->foreignId('user_id');
             $table->timestamps();
         });
     }
@@ -30,6 +30,6 @@ class CreateAuthorsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('authors');
+        Schema::dropIfExists('temp_images');
     }
 }

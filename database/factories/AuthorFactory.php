@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Author;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class AuthorFactory extends Factory
@@ -22,7 +23,10 @@ class AuthorFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'article' => '',
+            'status' => Author::STATUS_PENDING,
+            //'post_id' => 1,
+            'user_id' => User::factory()->create(['user_type' => User::AUTHOR])->id,
         ];
     }
 }

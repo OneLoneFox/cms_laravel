@@ -22,7 +22,10 @@ class PostFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'name' => $this->faker->name,
+            'schedule_pdf' => '',
+            'public' => false,
+            'user_id' => 1,
         ];
     }
 }

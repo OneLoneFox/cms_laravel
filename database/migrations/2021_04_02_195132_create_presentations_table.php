@@ -20,8 +20,7 @@ class CreatePresentationsTable extends Migration
             $table->time('start_time');
             $table->time('end_time');
             $table->string('location');
-            $table->foreignId('author_id')->constrained();
-            $table->foreignId('post_id')->constrained();
+            $table->foreignId('post_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

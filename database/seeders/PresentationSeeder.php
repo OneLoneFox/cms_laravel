@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\Presentation;
 
 class PresentationSeeder extends Seeder
 {
@@ -13,6 +14,8 @@ class PresentationSeeder extends Seeder
      */
     public function run()
     {
-        //
+        // Presentation::factory()
+        //     ->count(15)
+        //     ->create();
     }
 }
