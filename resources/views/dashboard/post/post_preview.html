@@ -1,6 +1,12 @@
 {% extends 'post/base.html' %}
 
 {% block content %}
-    {{ parser.render(front_tab.blocks)|raw }}
+    
+    {% if current_tab_content is not null %}
+        {{ parser.render(current_tab_content.blocks)|raw }}
+    {% else %}
+        <h1>No hay contenido en esta página.</h1>
+    {% endif %}
+        
 {% endblock content %}
     

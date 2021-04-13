@@ -6,6 +6,13 @@
     width: 100%;
     height: auto;
 }
+.img.stretched{
+    width: 100vw;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+}
 
 .img > img{
     width: 100%;

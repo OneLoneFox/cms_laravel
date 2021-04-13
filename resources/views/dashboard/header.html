@@ -8,7 +8,7 @@
         
 </h1>
 
-<div class="profile" @click="showMenu = !showMenu">
+<div class="profile" @click="showMenu = !showMenu" v-click-outside="closeProfileMenu">
     <vs-avatar color="#292929">
         <template #text>
             {{ auth_user().name|title }}

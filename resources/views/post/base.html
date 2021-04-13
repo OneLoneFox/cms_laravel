@@ -4,16 +4,26 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ object.nombre }} | {{ object.id }}</title>
-    <link rel="stylesheet" href="{{ static('core/css/shared.css') }}">
-    <link rel="stylesheet" href="{{ static('post/css/post.css') }}">
+    <title>{{ post.name }} | {{ current_tab.name }}</title>
+    <!-- load Poppins and Roboto fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Roboto&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{{ asset('resources/core/css/shared.css') }}">
+    <link rel="stylesheet" href="{{ asset('resources/post/css/post.css') }}">
 </head>
 <body>
     <nav id="nav">
-        {% for tab in tabs %}
-            <a href="">{{ tab.nombre }}</a>
-        {% endfor %}
-        <a href="/cms/{{ tab.nombre }}/register/">REGISTRO</a>
+        <div class="home-link">
+            <a href="{{ route('dashboard.post_preview', [post.id]) }}">{{ front_tab.name }}</a>
+        </div>
+        <div class="tab-links">
+            {% for tab in tabs %}
+                <a href="{{ route('dashboard.post_preview', [post.id, tab.id]) }}">{{ tab.name }}</a>
+            {% endfor %}
+        </div>
+        {# for practicity purposes we will use the actual register page instead of a preview #}
+        <a href="{{ route('post_register', [post.seo_name]) }}">REGISTRO</a>
     </nav>
     <div id="post-body">
         {% block content %}

@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class TempImages extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'path',
+        'post_id',
+        'tab_id',
+        'user_id',
+    ];
 }

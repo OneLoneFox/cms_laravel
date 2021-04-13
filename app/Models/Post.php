@@ -15,6 +15,10 @@ class Post extends Model
         'schedule_pdf',
         'user_id',
     ];
+    
+    protected $appends = [
+        'seo_name',
+    ];
 
     public function authors(){
         return $this->hasMany(Author::class);
@@ -26,5 +30,9 @@ class Post extends Model
 
     public function user(){
         return $this->belongsTo(User::class);
+    }
+
+    public function getSeoNameAttribute(){
+        return strtolower( str_replace(' ', '-', $this->name ) );
     }
 }

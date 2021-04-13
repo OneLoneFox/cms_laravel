@@ -1,0 +1,18 @@
+<table>
+    <thead>
+        <tr>
+        {% for th in content[0] %}
+            <th>{{ th }}</th>
+        {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in content[1:] %}
+            <tr>
+                {% for td in row %}
+                <td>{{ td }}</td>
+                {% endfor %}    
+            </tr>
+        {% endfor %} 
+    </tbody>
+</table>

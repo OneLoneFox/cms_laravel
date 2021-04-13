@@ -16,7 +16,15 @@ class Tab extends Model
         'is_front_page',
     ];
 
+    protected $appends = [
+        'seo_name',
+    ];
+
     public function post(){
         return $this->belongsTo(Post::class);
+    }
+
+    public function getSeoNameAttribute(){
+        return strtolower( str_replace(' ', '-', $this->name ) );
     }
 }

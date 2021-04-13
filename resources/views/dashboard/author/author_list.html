@@ -16,6 +16,7 @@
     <vs-table>
         <template #header>
             <vs-select
+                filter
                 @change="changePostFilter"
                 placeholder="Selecciona un congreso"
                 v-model="selectedPost"

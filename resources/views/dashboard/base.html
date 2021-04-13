@@ -27,10 +27,16 @@
     <div id="app">
         
         {# This is needed for some reason #}
-        {% block header_title %}{% endblock header_title %}
+        
         {% block header %}
         <div id="header">
-            {% include 'dashboard/header.html' with {header_title: block('header_title')} %}
+            
+            {% if block('header_title') is defined %}
+                {% include 'dashboard/header.html' with {header_title: block('header_title')} %}
+            {% else %}
+                {% include 'dashboard/header.html' with {header_title: ''} %}
+            {% endif %}
+                
         </div>
         {% endblock header %}
         <div id="main">
@@ -49,6 +55,7 @@
     <script src="{{ asset('resources/core/js/vue.js') }}"></script>
     <!-- Vuesax -->
     <script src="https://unpkg.com/vuesax@4.0.1-alpha.25/dist/vuesax.min.js"></script>
+    <script src="{{ asset('resources/dashboard/js/vue_directives.js') }}"></script>
     <script src="{{ asset('resources/dashboard/js/dashboard_mixin.js') }}"></script>
     {% block scripts %}
     {% endblock scripts %}

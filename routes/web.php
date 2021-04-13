@@ -4,7 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\PostController;
+// use App\Http\Controllers\PostController;
+use App\Http\Controllers\PostPreviewController;
 use App\Models\Post;
 
 
@@ -20,6 +21,10 @@ use App\Models\Post;
 */
 
 Route::get('/', LandingController::class)->name('home');
+
+Route::get('/{postSeoName}/register', function($postSeoName){
+    return 'WIP';
+})->name('post_register');
 
 Route::prefix('dashboard')
 ->name('dashboard.')
@@ -50,6 +55,8 @@ Route::prefix('dashboard')
             $post->delete();
             return redirect()->route('dashboard.post_list');
         })->name('post_delete');
+
+        Route::get('preview/{postId}/{tabId?}', PostPreviewController::class)->name('post_preview');
     });
 });
 

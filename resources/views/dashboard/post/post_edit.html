@@ -44,7 +44,7 @@
         overflow: hidden;
     }
 
-    #tab-row>.tab>.delete-icon {
+    #tab-row>.tab .delete-icon {
         /* Weird margin if not flex or grid */
         display: flex;
         padding: 2px;
@@ -52,7 +52,7 @@
         font-size: 14px;
     }
 
-    #tab-row>.tab>.delete-icon:hover {
+    #tab-row>.tab .delete-icon:hover {
         background: #e2e4eb;
     }
 
@@ -113,6 +113,11 @@
         align-items: center;
         justify-content: flex-end;
     }
+
+    .not-margin {
+        margin: 0;
+        padding: 10px;
+    }
 </style>
 <style>
     .tab-list-enter-active, .tab-list-leave-active{
@@ -130,10 +135,7 @@
 </style>
 {% endblock styles %}
 
-{#% block header_title %#}
-{#{ object.name }#}
-{#% endblock header_title %#}
-
+{% block header_title %}{{ post.name }}{% endblock header_title %}
 
 {% block content %}
 <div id="main-controls">
@@ -147,7 +149,13 @@
                 :key="tab.id"
             >
                 <span class="content">[[ tab.name ]]</span>
-                <span class="delete-icon" @click.stop="deleteTab(tab)"><i class='bx bx-x'></i></span>
+                <span
+                    v-if="!tab.is_front_page"
+                    class="delete-icon"
+                    @click.stop="promptDeleteTab(tab)"
+                >
+                    <i class='bx bx-x'></i>
+                </span>
             </span>
             <vs-button :key="-1" icon transparent class="image-icon" @click="prompt">
                 <img class="button-icon" src="{{ asset('resources/dashboard/icons/plus.svg') }}" alt="">
@@ -155,7 +163,7 @@
             </vs-button>
         </transition-group>
     <div id="action-row">
-        <vs-button href="/cms/dashboard/posts/4/preview/" :disabled="tabs.length == 0" shadow>
+        <vs-button href="{{ route('dashboard.post_preview', [post.id]) }}" :disabled="tabs.length == 0" shadow>
             <img src="{{ asset('resources/dashboard/icons/eye.svg') }}" alt="" class="icon">
             Previsualizar
         </vs-button>
@@ -199,15 +207,41 @@
         </div>
     </template>
 </vs-dialog>
+
+<vs-dialog width="550px" not-center v-model="tabDeletePromptActive">
+    <template #header>
+        <h4 class="not-margin">
+            Eliminar página
+        </h4>
+    </template>
+
+
+    <div class="con-content">
+        <p>
+            ¿Estás seguro que deseas eliminar esta página? Todos los datos relacionados se perderan para siempre.
+        </p>
+    </div>
+
+    <template #footer>
+        <div class="modal-footer">
+            <vs-button @click="confirmTabDelete" danger>
+                Eliminar
+            </vs-button>
+            <vs-button @click="tabDeletePromptActive=false" dark transparent>
+                Cancelar
+            </vs-button>
+        </div>
+    </template>
+</vs-dialog>
 {% endblock content %}
 
 
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2.20"></script>
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/image@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/image@2.3.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/editorjs-table@1.4.10/dist/bundle.min.js"></script>
 
 <script>
     const POST_ID = {{ post.id }};
@@ -228,6 +262,8 @@
                 editorData: null,
                 saveIconLoading: false,
                 createButtonLoading: false,
+                tabToDelete: null,
+                tabDeletePromptActive: false,
             };
         },
         methods: {
@@ -251,6 +287,7 @@
                             let tabData = JSON.parse(data.data.content);
                             this.editorData = tabData;
                             this.refreshEditor(tabData);
+                            // add the tab id to the image plugin config so it can send it to the api endpoint
                             this.editor.configuration.tools.image.config.additionalRequestData.tab_id = this.selectedTab.id;
                         // }else{
                             // console.error(data.errors);
@@ -263,9 +300,11 @@
                 };
                 let init = {
                     method: 'PATCH',
-                    // headers: {
-                    //     'Content-Type': 'application/json',
-                    // },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-XSRF-TOKEN': this.getCookie('XSRF-TOKEN'),
+                    },
                     body: JSON.stringify(data),
                 };
                 fetch(`/cms/api/tabs/${this.selectedTab.id}/`, init)
@@ -274,6 +313,15 @@
                         let tabData = JSON.parse(data.data.content);
                         this.editorData = tabData;
                     });
+            },
+            promptDeleteTab: function(tab){
+                this.tabToDelete = tab;
+                this.tabDeletePromptActive = true;
+            },
+            confirmTabDelete: function(){
+                this.deleteTab(this.tabToDelete);
+                this.tabToDelete = null;
+                this.tabDeletePromptActive = false;
             },
             deleteTab: function (tab) {
                 if (this.selectedTab?.id == tab.id) {
@@ -288,6 +336,8 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-XSRF-TOKEN': this.getCookie('XSRF-TOKEN'),
                     },
                 };
                 fetch(`/cms/api/tabs/${tab.id}/delete/`, init)
@@ -321,6 +371,8 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-XSRF-TOKEN': this.getCookie('XSRF-TOKEN'),
                     },
                     body: JSON.stringify(data),
                 };
@@ -383,6 +435,7 @@
                         },
                         table: {
                             class: Table,
+                            inlineToolbar: true,
                         },
                         image: {
                             class: ImageTool,
@@ -394,6 +447,10 @@
                                 },
                                 uploader: {
                                     uploadByUrl: (fileUrl) => Promise.resolve({success: 1, file: {url: fileUrl,},}),
+                                },
+                                additionalRequestHeaders: {
+                                    'Accept': 'application/json',
+                                    'X-XSRF-TOKEN': this.getCookie('XSRF-TOKEN'),
                                 },
                                 additionalRequestData: {
                                     post_id: POST_ID,
