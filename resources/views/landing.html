@@ -36,6 +36,7 @@
 					<img src="https://picsum.photos/seed/{{ post.id }}/300/200/" alt="">
 				</template>
 				<template #text>
+					<p>{{ post.name }}</p>
 					<p>
 						<i class='bx bxs-shield'></i>&nbsp;{{ post.created_at.format('d-m-Y') }}
 					</p>

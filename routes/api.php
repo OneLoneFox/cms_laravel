@@ -19,6 +19,7 @@ use App\Models\Post;
 use App\Models\Tab;
 
 use App\Http\Controllers\TabImageUploadController;
+use App\Http\Controllers\TabAttachmentUploadController;
 use App\Http\Controllers\TabUpdateController;
 
 /*
@@ -138,5 +139,6 @@ Route::middleware('auth:sanctum')->group(function (){
         });
 
         Route::post('/images', TabImageUploadController::class);
+        Route::post('/attachments', TabAttachmentUploadController::class);
     });
 });

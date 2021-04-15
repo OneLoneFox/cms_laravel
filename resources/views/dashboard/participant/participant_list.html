@@ -1,0 +1,130 @@
+{% extends 'dashboard/base.html' %}
+
+
+{% block styles %}
+<style>
+    #table {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 5px 20px 0 rgba(0,0,0,0.06);
+    }
+</style>    
+{% endblock styles %}
+
+
+{% block content %}
+<div id="table">
+    <vs-table>
+        <template #header>
+            <vs-select
+                filter
+                @change="changePostFilter"
+                placeholder="Selecciona un congreso"
+                v-model="selectedPost"
+                {% if posts is empty %}disabled{% endif %}
+            >
+                {% for post in posts %}
+                    <vs-option label="{{ post.name }}" value="{{ post.id }}">{{ post.name }}</vs-option>
+                {% endfor %}            
+            </vs-select>
+        </template>
+        <template #thead>
+            <vs-tr>
+                <!-- <vs-th sort @click="sort($event, 'name')">Nombre</vs-th>
+                <vs-th sort @click="sort($event, 'email')">Correo</vs-th>
+                <vs-th>Celular</vs-th>
+                <vs-th sort @click="sort($event, 'sex')">Sexo</vs-th>
+                <vs-th sort @click="sort($event, 'status')">Status</vs-th> -->
+            </vs-tr>
+        </template>
+        <template #tbody>
+            <vs-tr
+                :key="i"
+                v-for="(item, i) in participants"
+                :data="item"
+            >
+                <!-- <vs-td>[[ item.user.name ]]</vs-td>
+                <vs-td>[[ item.user.email ]]</vs-td>
+                <vs-td>[[ item.user.cellphone ]]</vs-td>
+                <vs-td>[[ item.user.sex ]]</vs-td>
+                <vs-td>[[ item.status ]]</vs-td> -->
+            </vs-tr>
+        </template>
+        <template #footer v-if="totalPages > 1">
+            <vs-pagination @input="changePage" v-model="currentPage" :length="totalPages" />
+        </template>
+    </vs-table>
+</div>
+{% endblock content %}
+
+
+{% block scripts %}
+<script>
+    var vm = new Vue({
+        mixins: [dashboard_mixin],
+        delimiters: ['[[', ']]'],
+        data: function(){
+            return {
+                active: 'participants',
+                participants: [],
+                sortAttr: null,
+                sortDir: null,
+                pageSize: 10,
+                currentPage: 1,
+                totalPages: null,
+                selectedPost: '',
+            }
+        },
+        methods: {
+            changePage: function(page){
+                this.currentPage = page;
+                this.fetchParticipants();
+            },
+            changePostFilter: function(){
+                this.fetchParticipants();
+            },
+            fetchParticipants: function(){
+                url = `/cms/api/posts/${this.selectedPost}/participants/?page=${this.currentPage}`;
+                if(this.sortAttr != null){
+                    url += `&orderBy=${this.sortAttr}&direction=${this.sortDir}`;
+                }
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        this.participants = data.data;
+                        this.totalPages = data.total_pages;
+                    }).catch(console.error);
+            },
+            sort: function(event, sortAttr){
+                if(!this.selectedPost){
+                    return;
+                }
+                this.changeSort(event, sortAttr);
+                this.sortAttr = sortAttr;
+                this.fetchParticipants();
+            },
+            changeSort: function(event, sortAttr){
+                let el = event.target;
+                let parent = el.parentElement;
+                if(this.sortAttr != sortAttr){
+                    // reset all sort arrows if sorting by a different attribute
+                    parent.querySelectorAll('th').forEach(th => {th.removeAttribute('data-sort-type')});
+                }
+                let sortType = el.dataset['sortType'] || 'desc';
+                if(sortType == "null"){
+                    sortType = 'desc';
+                }else if(sortType == 'desc'){
+                    sortType = 'asc';
+                }else if(sortType == 'asc'){
+                    sortType = 'desc';
+                }
+                this.sortDir = sortType;
+                el.dataset['sortType'] = sortType;
+            },
+        },
+        created: function(){
+            // this.fetchAuthors();
+        }
+    });
+</script>
+{% endblock scripts %}

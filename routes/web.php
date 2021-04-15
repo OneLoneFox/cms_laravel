@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\AuthorController;
+use App\Http\Controllers\ParticipantController;
 use App\Http\Controllers\AdminController;
 // use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostPreviewController;
@@ -37,6 +38,8 @@ Route::prefix('dashboard')
     Route::get('/admins', [AdminController::class, 'index'])->name('admins');
 
     Route::get('/authors', [AuthorController::class, 'index'])->name('authors');
+
+    Route::get('/participants', [ParticipantController::class, 'index'])->name('participants');
 
     Route::prefix('posts')
     ->group(function(){

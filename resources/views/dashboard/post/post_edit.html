@@ -163,7 +163,11 @@
             </vs-button>
         </transition-group>
     <div id="action-row">
-        <vs-button href="{{ route('dashboard.post_preview', [post.id]) }}" :disabled="tabs.length == 0" shadow>
+        <vs-button
+            :href="`{{ route('dashboard.post_preview', [post.id]) }}${selectedTab == null ? '' : '/'+selectedTab.id}`"
+            :disabled="tabs.length == 0"
+            shadow
+        >
             <img src="{{ asset('resources/dashboard/icons/eye.svg') }}" alt="" class="icon">
             Previsualizar
         </vs-button>
@@ -241,7 +245,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/image@2.3.0"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/@editorjs/attaches@latest"></script> -->
+<script src="{{ asset('resources/dashboard/js/editorjs-attaches.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/editorjs-table@1.4.10/dist/bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@latest"></script>
 
 <script>
     const POST_ID = {{ post.id }};
@@ -425,6 +432,7 @@
                     initialBlock: "paragraph",
                     placeholder: "...",
                     tools: {
+                        underline: Underline,
                         header: {
                             class: Header,
                             shortcut: "CMD+SHIFT+H",
@@ -436,6 +444,16 @@
                         table: {
                             class: Table,
                             inlineToolbar: true,
+                        },
+                        attaches: {
+                            class: AttachesTool,
+                            config: {
+                                endpoint: '/cms/api/tabs/attachments/',
+                                additionalRequestHeaders: {
+                                    'Accept': 'application/json',
+                                    'X-XSRF-TOKEN': this.getCookie('XSRF-TOKEN'),
+                                }
+                            }
                         },
                         image: {
                             class: ImageTool,
