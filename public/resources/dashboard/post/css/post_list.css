@@ -1,0 +1,73 @@
+.fab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    /* background-color: #292929; */
+    /* color: #fff; */
+    font-size: 20px;
+}
+
+.filepond--panel-root {
+    border-radius: 2em;
+    background-color: rgb(244, 247, 248);
+    height: 1em;
+}
+
+.con-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+.con-footer{
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+button a{
+    display: inherit;
+    text-decoration: none;
+    color: inherit;
+}
+
+.not-margin {
+    margin: 0;
+    padding: 10px;
+}
+
+.footer-dialog {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: calc(100%);
+}
+
+#grid {
+    display: grid;
+    align-items: start;
+    gap: 20px;
+    grid-gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+/* .vs-card__img{
+    height: 300px;
+}
+.vs-card__img img{
+    height: 300px;
+    object-fit: cover;
+} */
+
+.vs-card__img img{
+    height: 200px;
+    width: 340px;
+    object-fit: cover;
+}

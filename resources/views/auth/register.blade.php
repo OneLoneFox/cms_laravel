@@ -23,7 +23,7 @@
 
             <!-- Cellphone Number -->
             <div class="mt-4">
-                <x-label for="cellphone" :value="__('Cellphone')" />
+                <x-label for="cellphone" :value="__('Número celular')" />
 
                 <x-input id="cellphone" class="block mt-1 w-full" type="text" name="cellphone" :value="old('cellphone')" required />
             </div>
@@ -51,9 +51,11 @@
             </div>
 
             <div class="flex items-center justify-end mt-4">
+            {{--    
                 <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('login') }}">
                     {{ __('Already registered?') }}
                 </a>
+            --}}
 
                 <x-button class="ml-4">
                     {{ __('Register') }}

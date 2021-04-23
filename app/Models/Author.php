@@ -23,8 +23,8 @@ class Author extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function presentation(){
-        return $this->belongsTo(Presentation::class);
+    public function presentations(){
+        return $this->hasMany(Presentation::class);
     }
 
     public function coAuthors(){

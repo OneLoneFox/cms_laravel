@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
-class RegisteredUserController extends Controller
+class RegisteredAdminController extends Controller
 {
     /**
      * Display the registration view.
@@ -38,15 +38,15 @@ class RegisteredUserController extends Controller
             'cellphone' => 'required|regex:/^[0-9]{10}$/',
             'sex' => 'required',
             'password' => 'required|string|confirmed|min:8',
-        ]);
-        Auth::login($user = User::create([
+            ]);
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'cellphone' => $request->cellphone,
             'sex' => $request->sex,
             'user_type' => User::ADMIN,
             'password' => Hash::make($request->password),
-        ]));
+        ]);
 
         event(new Registered($user));
 

@@ -2,59 +2,70 @@
 <html>
 
 <head>
-	<title>Home</title>
-	<link rel="preconnect" href="https://fonts.gstatic.com">
-	<link href="https://fonts.googleapis.com/css2?family=Poppins&family=Roboto&display=swap" rel="stylesheet">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="csrf-token" content="{{ csrf_token() }}">
+	<meta charset="utf-8">
+
+	<title>Inicio | Publicaciones</title>
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<!-- <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Roboto&display=swap" rel="stylesheet">
+	 -->
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
 
 	<!-- Core styles -->
-	<link rel="stylesheet" href="{{ asset('resources/core/css/shared.css') }}">
-
-	<link href="https://unpkg.com/vuesax@4.0.1-alpha.25/dist/vuesax.min.css" rel="stylesheet">
-	<!-- Box icons -->
-	<link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
-	<style>
-		#grid {
-			display: grid;
-			align-items: center;
-			gap: 20px;
-			grid-gap: 20px;
-			grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-		}
-	</style>
+	<!-- <link rel="stylesheet" href="{{ asset('resources/core/css/shared.css') }}"> -->
+	<link rel="stylesheet" href="{{ asset('css/app.css') }}">
+	<link rel="stylesheet" href="{{ asset('resources/core/css/landing.css') }}">
+	<!-- <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script> -->
 </head>
 
-<body>
-	{{ dump() }}
-	<div id="app">
-		<div id="grid">
-			{% for post in posts %}
-			<vs-card>
-				<template #title>
-					<h3>{{ post.nombre }}</h3>
-				</template>
-				<template #img>
-					<img src="https://picsum.photos/seed/{{ post.id }}/300/200/" alt="">
-				</template>
-				<template #text>
-					<p>{{ post.name }}</p>
-					<p>
-						<i class='bx bxs-shield'></i>&nbsp;{{ post.created_at.format('d-m-Y') }}
-					</p>
-				</template>
-			</vs-card>
+<body class="bg-gray-100">
+	<header class="border-solid border-gray-200 border-b">
+		<nav class="bg-white px-8 py-5 flex justify-between items-center header">
+			<div class="flex items-center justify-center">
+				<span class="text-xl font-bold md:text-2x1">UTBB</span>
+			</div>
+			
+			{% if auth_check() %}
+				<div>
+					{{ auth_user().name }}
+				</div>
 			{% else %}
-			<h3>EMPTY</h3>
-			{% endfor %}
-		</div>
+			<a href="{{ route('login') }}" class="text-sm text-white rounded-xl hover:shadow-md transition py-2 px-4 login-button">
+				INICIO DE SESIÓN
+			</a>
+			{% endif %}
+		</nav>
+		<section class="flex items-center justify-center md:justify-start hero overflow-hidden relative">
+			<!-- <img class="w-full h-full filter brightness-50 object-cover absolute" src="{{ asset('resources/img/hero-1.jpg') }}" alt="hero img"> -->
+			<!-- <div class="text-white m-10 mr-0 z-10 text-xl md:text-4xl font-medium font-sans md:max-w-md text-center md:text-left"> -->
+			<div class="text-blue-800 font-bold m-10 mr-0 z-10 text-xl md:text-4xl font-sans md:max-w-md md:text-left">
+				Encuentra las publicaciones de tus congresos favoritos
+			</div>
+		</section>
+	</header>
+	<div class="mx-auto mt-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 max-w-5xl px-4 py-8">
+		{% for post in posts %}
+			<a
+				href="{{ route('post_view', [post.seo_name]) }}"
+				class="bg-white rounded-3xl shadow-lg hover:shadow-md transition {{ (loop.index == 1) ? 'md:col-span-2 md:row-span-2' }}">
+				<figure class="{{ (loop.index == 1) ? 'md:flex' }}">
+					<div class="w-full overflow-hidden {{ (loop.index == 1) ? 'md:max-w-xs' }}">
+						<img
+							src='{{ asset("storage/#{post.cover_image}") }}' alt=""
+							class="w-full h-auto object-cover p-2 rounded-3xl"
+						>
+					</div>
+					<figcaption class="p-5 pt-0 mt-5">
+						<h2>{{ post.name }}</h2>
+						<p class="text-gray-700 text-xs">{{ post.updated_at }}</p>
+					</figcaption>
+				</figure>
+			</a>
+		{% else %}
+		<h1>No hay publicaciones, aún.</h1>
+		{% endfor %}
 	</div>
-	<script src="{{ asset('resources/core/js/vue.js') }}"></script>
-	<script src="https://unpkg.com/vuesax@4.0.1-alpha.25/dist/vuesax.min.js"></script>
-	<script>
-		var vm = new Vue({
-			delimiters: ['[[', ']]'],
-			el: '#app',
-		})
-	</script>
 </body>
 
 </html>

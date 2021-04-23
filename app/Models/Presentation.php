@@ -9,7 +9,20 @@ class Presentation extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'title',
+        'presentation_date',
+        'start_time',
+        'end_time',
+        'location',
+        'post_id',
+    ];
+
     public function author(){
-        return $this->hasOne(Author::class);
+        return $this->belongsTo(Author::class);
+    }
+
+    public function post(){
+        return $this->belongsTo(Post::class);
     }
 }

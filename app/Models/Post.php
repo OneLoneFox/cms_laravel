@@ -18,7 +18,12 @@ class Post extends Model
     
     protected $appends = [
         'seo_name',
+        'front_tab',
     ];
+
+    public function presentations(){
+        return $this->hasMany(Presentation::class);
+    }
 
     public function authors(){
         return $this->hasMany(Author::class);
@@ -34,5 +39,9 @@ class Post extends Model
 
     public function getSeoNameAttribute(){
         return strtolower( str_replace(' ', '-', $this->name ) );
+    }
+
+    public function getFrontTabAttribute(){
+        return Tab::where('post_id', $this->id)->where('is_front_page', true)->first();
     }
 }

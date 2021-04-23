@@ -7,7 +7,7 @@ use App\Models\Post;
 class LandingController extends Controller
 {
     public function __invoke(){
-        $posts = Post::all();
+        $posts = Post::where('public', true)->latest()->get();
         return view('landing', ['posts' => $posts]);
     }
 }

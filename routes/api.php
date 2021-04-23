@@ -21,6 +21,7 @@ use App\Models\Tab;
 use App\Http\Controllers\TabImageUploadController;
 use App\Http\Controllers\TabAttachmentUploadController;
 use App\Http\Controllers\TabUpdateController;
+use App\Http\Controllers\PostController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,35 +57,11 @@ Route::middleware('auth:sanctum')->group(function (){
             return new PostCollection(Post::all());
         });
         
-        Route::post('/', function (Request $request){
-            $request->validate([
-                'name' => 'required|unique:posts|string|regex:/^[a-zA-Z0-9 ]+$/',
-                'public' => 'required|boolean',
-            ]);
-            $file = $request->file('schedule_pdf');
-            $post = new Post();
-            $post->name = $request->name;
-            $post->public = $request->public;
-            $post->schedule_pdf = '';
-            $post->user_id = $request->user()->id;
-            $post->save();
-            $tab = Tab::create([
-                'name' => 'Inicio',
-                'is_front_page' => true,
-                'content' => null,
-                'post_id' => $post->id,
-            ]);
-            if($file != null){
-                // place the file in a folder with the new post id
-                // $location = "public/posts/{$post->id}/".$file->getClientOriginalName();
-                // Storage::put($location, $file);
-                $location = $file->storePublicly("posts/schedules");
-                // update the file path on the model
-                $post->schedule_pdf = $location;
-                $post->save();
-            }
-            return new PostResource($post);
-        });
+        Route::post('/', [PostController::class, 'store']);
+
+        Route::patch('/{post}', [PostController::class, 'update']);
+
+        Route::post('/{post}/schedule', [PostController::class, 'updateFile']);
         
         Route::get('/{postId}/authors/', function (Request $request, $postId){
             $orderBy = $request->get('orderBy') ?? 'users.name';
@@ -94,6 +71,7 @@ Route::middleware('auth:sanctum')->group(function (){
             $orderDirection = $request->get('direction') ?? 'asc';
             $postAuthors = Author::where('post_id', $postId)
                                     ->join('users', 'users.id', '=', 'authors.user_id')
+                                    ->join('presentations', 'presentations.author_id', '=', 'authors.id')
                                     ->orderBy($orderBy, $orderDirection)
                                     ->paginate(10);
             return new AuthorCollection($postAuthors);

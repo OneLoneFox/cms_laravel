@@ -15,7 +15,9 @@ class PostResource extends JsonResource
     public function toArray($request)
     {
         $default = parent::toArray($request);
+        
         $extra = [
+            'cover_image' => asset('storage/' . $this->cover_image),
             'user' => new UserResource($this->user),
             'edit_url' => route('dashboard.post_edit', [$this->id]),
             'delete_url' => route('dashboard.post_delete', [$this->id]),

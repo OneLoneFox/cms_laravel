@@ -1,12 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\ParticipantController;
 use App\Http\Controllers\AdminController;
 // use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostPreviewController;
+use App\Http\Controllers\PostRegisterController;
+use App\Http\Controllers\PostViewController;
 use App\Models\Post;
 
 
@@ -23,13 +26,9 @@ use App\Models\Post;
 
 Route::get('/', LandingController::class)->name('home');
 
-Route::get('/{postSeoName}/register', function($postSeoName){
-    return 'WIP';
-})->name('post_register');
-
 Route::prefix('dashboard')
 ->name('dashboard.')
-->middleware(['auth'])
+->middleware(['auth', 'staff'])
 ->group(function(){
     Route::get('/', function () {
         return view('dashboard.index');
@@ -59,8 +58,28 @@ Route::prefix('dashboard')
             return redirect()->route('dashboard.post_list');
         })->name('post_delete');
 
-        Route::get('preview/{postId}/{tabId?}', PostPreviewController::class)->name('post_preview');
+        // Route::get('preview/{postId}/{tabId?}', PostPreviewController::class)->name('post_preview');
     });
 });
 
+
 require __DIR__.'/auth.php';
+
+
+Route::get('/{postSeoName}/schedule', function(Post $post){
+    return Storage::disk('public')->response($post->schedule_pdf);
+})
+->name('post_schedule')
+->where('postSeoName', '[a-zA-Z0-9\-]+');
+
+
+Route::get('/{postSeoName}/register', [PostRegisterController::class, 'index'])
+->name('post_register')
+->where('postSeoName', '[a-zA-Z0-9\-]+');
+
+
+// {postSeoName} and {tabSeoname} bindgings are inside RouteServiceProvider
+// These go at the end to prevent route collisions
+Route::get('/{postSeoName}/{tabSeoName?}', PostViewController::class)
+->name('post_view')
+->where('postSeoName', '[a-zA-Z0-9\-]+');

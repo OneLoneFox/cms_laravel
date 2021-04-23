@@ -8,7 +8,7 @@ use App\Helpers\CodexToHtml;
 use App\Models\Tab;
 use App\Models\Post;
 
-class PostPreviewController extends Controller
+class PostViewController extends Controller
 {
     /**
      * Handle the incoming request.
@@ -16,19 +16,25 @@ class PostPreviewController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function __invoke(Request $request, $postId, $tabId = null)
+    public function __invoke(Request $request, Post $post, $tabSeoName = null)
     {
-        $post = Post::findOrFail($postId);
-        $tabs = Tab::where('post_id', $postId)->where('is_front_page', false)->get();
-        // $tabs = Tab::where('post_id', $postId)->get();
+        $tab = null;
+        if($tabSeoName != null){
+            $searchTerm = str_replace('-', ' ', $tabSeoName);
+            $tab = Tab::where('name', $searchTerm)
+                ->where('post_id', $post->id)
+                ->firstOrFail();
+        }
+        $tabs = Tab::select('id', 'name')->where('post_id', $post->id)->where('is_front_page', false)->get();
         $frontTab = Tab::select('id', 'name')->where('is_front_page', true)->first();
-        if($tabId == null){
-            $currentTab = Tab::where('post_id', $postId)->where('is_front_page', true)->first();
+        // if the url only contains the post-seo-name but not a tab then show the default tab
+        if($tab == null){
+            $currentTab = Tab::where('post_id', $post->id)->where('is_front_page', true)->first();
         }else{
-            $currentTab = Tab::findOrFail($tabId);
+            $currentTab = $tab;
         }
         $parser = $this->getContentParser();
-        return view('dashboard.post.post_preview', [
+        return view('post.post_view', [
             'post' => $post,
             'front_tab' => $frontTab,
             'tabs' => $tabs,
@@ -41,7 +47,7 @@ class PostPreviewController extends Controller
     private function getContentParser(){
         $parser = new CodexToHtml([
             'header' => function($text, $level){
-                return "<h${level}>${text}</h${level}>";
+                return "<h${level} class=\"font-bold\">${text}</h${level}>";
             },
             'paragraph' => function($text) {
                 return "<p>{$text}</p>";

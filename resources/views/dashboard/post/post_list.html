@@ -2,68 +2,8 @@
 
 {% block styles %}
 <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" />
-
-<style>
-    .fab {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        /* background-color: #292929; */
-        /* color: #fff; */
-        font-size: 20px;
-    }
-
-    .filepond--panel-root {
-        border-radius: 2em;
-        background-color: rgb(244, 247, 248);
-        height: 1em;
-    }
-
-    .con-form {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        width: 100%;
-    }
-    .con-footer{
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-    }
-
-    button a{
-        display: inherit;
-        text-decoration: none;
-        color: inherit;
-    }
-
-    .not-margin {
-        margin: 0;
-        padding: 10px;
-    }
-
-    .footer-dialog {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        width: calc(100%);
-    }
-
-    #grid {
-        display: grid;
-        align-items: center;
-        gap: 20px;
-        grid-gap: 20px;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    }
-</style>
+<link rel="stylesheet" href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css" />
+<link rel="stylesheet" href="{{ asset('resources/dashboard/post/css/post_list.css') }}">
 {% endblock styles %}
 
 
@@ -76,7 +16,13 @@
             <h3>{{ post.name }}</h3>
         </template>
         <template #img>
-            <img src="https://picsum.photos/seed/{{ post.id }}/300/200/" alt="">
+            
+            {% if post.cover_image is empty %}
+                <img src="https://picsum.photos/seed/{{ post.id }}/300/200/" alt="">
+            {% else %}
+                <img src='{{ asset("storage/#{post.cover_image}") }}' alt="">
+            {% endif %}
+                
         </template>
         <template #text>
             <p>
@@ -102,7 +48,7 @@
             <h3>[[ post.name ]]</h3>
         </template>
         <template #img>
-            <img :src="'https://picsum.photos/seed/'+post.id+'/300/200/'" alt="">
+            <img :src="post.cover_image" alt="">
         </template>
         <template #text>
             <p>
@@ -149,8 +95,14 @@
                 Publico
             </vs-option>
         </vs-select>
-        <file-pond ref="pond" label-idle="Coloca el archivo del programa aqui..." instant-upload="false"
-            accepted-file-types="application/pdf" @updateFiles="handleUpdateFiles" />
+        <template>
+            <file-pond ref="pond_image" label-idle="Coloca la portada aqui..." instant-upload="false"
+                accepted-file-types="image/jpeg,image/png" @updateFiles="handleUpdateImage" />
+        </template>
+        <template>
+            <file-pond ref="pond" label-idle="Coloca el archivo del programa aqui..." instant-upload="false"
+                accepted-file-types="application/pdf" @updateFiles="handleUpdateFiles" />
+        </template>
     </div>
 
     <template #footer>
@@ -199,19 +151,21 @@
 
 {% block scripts %}
 <script src="https://unpkg.com/filepond"></script>
+<script src="https://unpkg.com/filepond-plugin-image-preview"></script>
 <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
 <script src="https://unpkg.com/vue-filepond@^6.0.0"></script>
 <script>
     var vm = new Vue({
         mixins: [dashboard_mixin],
         components: {
-            FilePond: vueFilePond.default(FilePondPluginFileValidateType),
+            FilePond: vueFilePond.default(FilePondPluginFileValidateType, FilePondPluginImagePreview),
         },
         data: function () {
             return {
                 newPosts: [],
                 active: 'post',
                 file: null,
+                image: null,
                 postCreateDialogActive: false,
                 postDeletePromptActive: false,
                 unconfirmedDeleteUrl: '',
@@ -223,14 +177,18 @@
             };
         },
         methods: {
+            handleUpdateImage: function () {
+                this.image = this.$refs.pond_image.getFile()?.file ?? null;
+            },
             handleUpdateFiles: function () {
-                this.file = this.$refs.pond.getFile()?.file;
+                this.file = this.$refs.pond.getFile()?.file ?? null;
             },
             setFormData: function () {
                 let formData = new FormData();
                 formData.append('name', this.formData.name);
                 formData.append('public', this.formData.public);
                 formData.append('schedule_pdf', this.file);
+                formData.append('cover_image', this.image);
                 return formData;
             },
             isValid: function () {
@@ -262,11 +220,23 @@
                 fetch('/cms/api/posts/', init)
                     .then(response => response.json())
                     .then(data => {
+                        if("errors" in data){
+                            for(let field in data.errors){
+                                data.errors[field].forEach((error) => {
+                                    this.openNotification('bottom-right', 'danger', 'Error', `${field}: ${error}`);
+                                });
+                            }
+                            return;
+                        }
+                        if("exception" in data){
+                            this.openNotification('bottom-right', 'danger', 'Error fatal', 'Algo salió muy, muy mal.')
+                        }
                         this.newPosts.push(data.data);
                         this.formData.name = '';
                         this.formData.public = '0';
                         this.file = null;
                         this.postCreateDialogActive = false;
+                        this.openNotification('bottom-right', 'success', '¡Listo!', 'Publicación creada con exito.');
                     });
             },
             promptDelete: function (e) {
@@ -274,7 +244,7 @@
                 e.preventDefault();
                 this.unconfirmedDeleteUrl = e.currentTarget.href;
             },
-            confirmDelete: function(){
+            confirmDelete: function () {
                 this.postDeletePromptActive = false;
                 document.location.href = this.unconfirmedDeleteUrl;
             },

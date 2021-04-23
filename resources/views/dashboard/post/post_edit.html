@@ -2,6 +2,7 @@
 
 
 {% block styles %}
+<link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" />
 <style>
     #main-controls {
         display: flex;
@@ -118,6 +119,22 @@
         margin: 0;
         padding: 10px;
     }
+    .con-content .setting{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .con-content .current-file{
+        margin-bottom: 20px;
+    }
+    .con-content .setting > *{
+        margin: 0;
+    }
+    .con-content .setting > label{
+        display: flex;
+        align-items: center;
+    }
 </style>
 <style>
     .tab-list-enter-active, .tab-list-leave-active{
@@ -131,6 +148,13 @@
     .tab-list-enter, .tab-list-leave-to{
         opacity: 0;
         transform: translateX(-20px);
+    }
+</style>
+<style>
+    .filepond--panel-root {
+        border-radius: 2em;
+        background-color: rgb(244, 247, 248);
+        height: 1em;
     }
 </style>
 {% endblock styles %}
@@ -164,16 +188,15 @@
         </transition-group>
     <div id="action-row">
         <vs-button
-            :href="`{{ route('dashboard.post_preview', [post.id]) }}${selectedTab == null ? '' : '/'+selectedTab.id}`"
-            :disabled="tabs.length == 0"
+            :href="`{{ route('post_view', [post.seo_name]) }}${selectedTab == null ? '' : '/'+selectedTab.seo_name}`"
             shadow
         >
             <img src="{{ asset('resources/dashboard/icons/eye.svg') }}" alt="" class="icon">
             Previsualizar
         </vs-button>
-        <vs-button :disabled="tabs.length == 0" dark>
-            <img src="{{ asset('resources/dashboard/icons/calendar.svg') }}" alt="" class="icon">
-            Publicar
+        
+        <vs-button dark icon @click="postSettingsModalActive = true">
+            <i class="bx bx-cog"></i>
         </vs-button>
     </div>
 </div>
@@ -192,12 +215,21 @@
 <vs-dialog width="300px" not-center v-model="newTabModal">
     <template #header>
         <h4 class="not-margin">
-            Nombre de la página (debe ser unico).
+            Crear una página.
         </h4>
     </template>
 
     <div class="con-content">
-        <vs-input v-model="newTabName" placeholder="Nombre" block></vs-input>
+        <vs-input
+            @keyup.enter="createTab"
+            v-model="newTabName"
+            placeholder="Nombre (único)"
+            block
+        >
+            <template #message-danger v-for="errorMessage in createTabErrors">
+                [[ errorMessage ]]
+            </template>
+        </vs-input>
     </div>
 
     <template #footer>
@@ -237,10 +269,53 @@
         </div>
     </template>
 </vs-dialog>
+
+<vs-dialog not-center v-model="postSettingsModalActive">
+    <template #header>
+        <h4 class="not-margin">Ajustes de la publicación</h4>
+    </template>
+    <div class="con-content">
+        <div class="setting">
+            <label>Privacidad</label>
+            <vs-switch v-model="postIsPublic">
+                <template #off>
+                    <i class='bx bxs-lock' ></i>
+                </template>
+                <template #on>
+                    <i class='bx bxs-lock-open' ></i>
+                </template>
+            </vs-switch>
+        </div>
+        <p>PDF del programa.</p>
+        {% if post.schedule_pdf is not empty %}
+        <div class="current-file">
+            <a href="{{ asset("storage/#{post.schedule_pdf}") }}" target="_blank">
+                Archivo actual
+            </a>
+        </div>
+        {% endif %}
+
+        <file-pond ref="pond" label-idle="Coloca el archivo del programa aqui..." instant-upload="false"
+            accepted-file-types="application/pdf" @updateFiles="handleUpdateFiles" />
+
+    </div>
+    <template #footer>
+        <div class="modal-footer">
+            <vs-button dark @click="savePostChanges" :loading="updatePostButtonLoading">
+                <img src="{{ asset('resources/dashboard/icons/calendar.svg') }}" alt="" class="icon">
+                Guardar cambios
+            </vs-button>
+        </div>
+    </template>
+</vs-dialog>
 {% endblock content %}
 
 
 {% block scripts %}
+<script src="https://unpkg.com/filepond"></script>
+<script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+<script src="https://unpkg.com/vue-filepond@^6.0.0"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2.20"></script>
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script>
@@ -252,15 +327,22 @@
 
 <script>
     const POST_ID = {{ post.id }};
+    const POST_IS_PUBLIC = {{ post.public }};
 </script>
 <script>
     var vm = new Vue({
         mixins: [dashboard_mixin],
         delimiters: ['[[', ']]'],
+        components: {
+            FilePond: vueFilePond.default(FilePondPluginFileValidateType),
+        },
         data: function () {
             return {
+                file: null,
                 newTabModal: false,
+                postSettingsModalActive: false,
                 newTabName: null,
+                postIsPublic: POST_IS_PUBLIC ? true : false, // now it gets type sensitive huh?
                 active: 'post',
                 tabs: [],
                 counter: 0,
@@ -268,14 +350,19 @@
                 editor: null,
                 editorData: null,
                 saveIconLoading: false,
+                updatePostButtonLoading: false,
                 createButtonLoading: false,
                 tabToDelete: null,
                 tabDeletePromptActive: false,
+                createTabErrors: [],
             };
         },
         methods: {
             prompt: function(){
                 this.newTabModal = true;
+            },
+            handleUpdateFiles: function () {
+                this.file = this.$refs.pond.getFile()?.file ?? null;
             },
             handleSelectedTab: function (tab) {
                 if(this.selectedTab?.id == tab.id){
@@ -299,7 +386,43 @@
                         // }else{
                             // console.error(data.errors);
                         // }
-                    }).catch(console.log);
+                    }).catch(console.error);
+            },
+            savePostChanges: function(){
+                this.updatePostButtonLoading = true;
+                Promise.all([this.updatePost(), this.uploadPostFile()]).then(values => {
+                    this.updatePostButtonLoading = false;
+                });
+            },
+            updatePost: function(){
+                let data = {
+                    public: this.postIsPublic,
+                };
+                let init = {
+                    'method': 'PATCH',
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-XSRF-TOKEN': this.getCookie('XSRF-TOKEN'),
+                    },
+                    body: JSON.stringify(data),
+                };
+                return fetch(`/cms/api/posts/${POST_ID}/`, init)
+                    .then(response => response.json());
+            },
+            uploadPostFile: function(){
+                let formData = new FormData();
+                formData.append('schedule_pdf', this.file);
+                let init = {
+                    headers: {
+                        'X-XSRF-TOKEN': this.getCookie('XSRF-TOKEN'),
+                        'Accept': 'application/json',
+                    },
+                    method: 'POST',
+                    body: formData,
+                };
+                return fetch(`/cms/api/posts/${POST_ID}/schedule/`, init)
+                    .then(response => response.json());
             },
             updateTabContent: function (){
                 let data = {
@@ -387,14 +510,15 @@
                     .then(response => response.json())
                     .then(data => {
                         this.createButtonLoading = false;
-                        if(data){
-                            this.newTabName = null;
-                            this.newTabModal = false;
-                            this.fetchTabs();
-                        }else{
-                            console.error(data.errors);
+                        if('errors' in data){
+                            this.createTabErrors = data.errors.name;
+                            return;
                         }
-                    }).catch(console.log);
+                        this.createTabErrors = [];
+                        this.newTabName = null;
+                        this.newTabModal = false;
+                        this.fetchTabs();
+                    }).catch(console.error);
             },
             fetchTabs: function(){
                 fetch(`/cms/api/posts/${POST_ID}/tabs/`)

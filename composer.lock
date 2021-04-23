@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c61d3e334d21f691b69448a89628d23d",
+    "content-hash": "04e9c131c13597bcb54df96d11897f36",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -892,6 +892,65 @@
                 "source": "https://github.com/guzzle/psr7/tree/1.8.1"
             },
             "time": "2021-03-21T16:25:00+00:00"
+        },
+        {
+            "name": "laradevs/spanish",
+            "version": "v2.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laradevs/spanish.git",
+                "reference": "dcb4c3e46b37791aab4315f76d7368f9e5c1d3b3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laradevs/spanish/zipball/dcb4c3e46b37791aab4315f76d7368f9e5c1d3b3",
+                "reference": "dcb4c3e46b37791aab4315f76d7368f9e5c1d3b3",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/console": ">=5.8.0",
+                "illuminate/support": ">=5.8.0",
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "ext-json": "*",
+                "orchestra/testbench": "^3.4|^4.0",
+                "phpunit/phpunit": "^5.6|^6.3|^7.0|^8.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "LaraDevs\\Spanish\\SpanishServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LaraDevs\\Spanish\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ernesto Liberio Vera",
+                    "email": "ernesto.liberio@gmail.com"
+                }
+            ],
+            "description": "labels translated to spanish",
+            "homepage": "https://github.com/laradevs/spanish",
+            "keywords": [
+                "laravel",
+                "spanish"
+            ],
+            "support": {
+                "issues": "https://github.com/laradevs/spanish/issues",
+                "source": "https://github.com/laradevs/spanish/tree/v2.3"
+            },
+            "time": "2021-02-19T21:42:17+00:00"
         },
         {
             "name": "laravel/framework",

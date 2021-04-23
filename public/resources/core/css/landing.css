@@ -1,0 +1,13 @@
+.hero{
+    height: 80vh;
+    /* min-height: 250px;
+    max-height: 500px; */
+}
+
+.header{
+    box-shadow: 0 20px 20px 0 rgba(206, 176, 255, 0.14);
+}
+
+.login-button{
+    background: #2F58FF;
+}

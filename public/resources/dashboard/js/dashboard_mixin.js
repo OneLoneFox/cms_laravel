@@ -1,13 +1,21 @@
 var dashboard_mixin = {
     el: '#app',
     delimiters: ['[[', ']]'],
-    data: function(){
+    data: function () {
         return {
             showMenu: false,
         }
     },
     methods: {
-        getCookie: function(name) {
+        openNotification: function(position = null, color, title, message) {
+            const noti = this.$vs.notification({
+                color,
+                position,
+                title: title,
+                text: message
+            });
+        },
+        getCookie: function (name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
                 let cookies = document.cookie.split(';');
@@ -22,7 +30,7 @@ var dashboard_mixin = {
             }
             return cookieValue;
         },
-        closeProfileMenu: function(){
+        closeProfileMenu: function () {
             this.showMenu = false;
         }
     },
