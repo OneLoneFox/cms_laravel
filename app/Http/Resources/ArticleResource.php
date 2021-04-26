@@ -17,7 +17,9 @@ class ArticleResource extends JsonResource
         $default = parent::toArray($request);
         $overrides = [
             'payment_verified' => (bool)$this->payment_verified,
-            'article_pdf' => asset('storage/'.$this->article_pdf),
+            'article_pdf' => $this->when(!$this->article_pdf, function(){
+                return asset('storage/'.$this->article_pdf);
+            }),
         ];
         return array_merge($default, $overrides);
     }
