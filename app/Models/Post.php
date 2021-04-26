@@ -14,6 +14,8 @@ class Post extends Model
         'public',
         'schedule_pdf',
         'user_id',
+        'start_date',
+        'end_date',
     ];
     
     protected $appends = [
@@ -25,8 +27,17 @@ class Post extends Model
         return $this->hasMany(Presentation::class);
     }
 
+    public function articles(){
+        return $this->hasMany(Article::class);
+    }
+
     public function authors(){
-        return $this->hasMany(Author::class);
+        return $this->belongsToMany(User::class);
+    }
+
+
+    public function participants(){
+        return $this->belongsToMany(User::class, 'participant_post')->withPivot('payment_file', 'payment_verified');
     }
 
     public function tabs(){

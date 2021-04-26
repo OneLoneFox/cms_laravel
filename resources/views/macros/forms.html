@@ -1,0 +1,14 @@
+{% macro label(label, for) %}
+<label class="block font-medium text-sm text-gray-700" for="{{ for }}">
+    {{ label }}
+</label>
+{% endmacro %}
+
+{% macro input(name, type, class, attributes) %}
+<input 
+    type="{{ type }}" 
+    name="{{ name }}" 
+    class="{{ class ~ ' ' ~ 'rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50'}}"
+    {% for attr, value in attributes %} {{ attr }}="{{ value }}"{% endfor %}{% if not attributes.id is defined %} id="{{ name }}"{% endif %}
+>
+{% endmacro %}

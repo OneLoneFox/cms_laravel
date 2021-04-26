@@ -8,6 +8,15 @@
         border-radius: 16px;
         box-shadow: 0 5px 20px 0 rgba(0,0,0,0.06);
     }
+    .switch-wrap{
+        display: flex;
+    }
+    .expand-data{
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 16px;
+    }
 </style>    
 {% endblock styles %}
 
@@ -24,17 +33,17 @@
                 {% if posts is empty %}disabled{% endif %}
             >
                 {% for post in posts %}
-                    <vs-option label="{{ post.name }}" value="{{ post.id }}">{{ post.name }}</vs-option>
+                    <vs-option label="{{ post.name }}" value="{{ post.name }}|{{ post.id }}">{{ post.name }}</vs-option>
                 {% endfor %}            
             </vs-select>
         </template>
         <template #thead>
             <vs-tr>
-                <!-- <vs-th sort @click="sort($event, 'name')">Nombre</vs-th>
+                <vs-th sort @click="sort($event, 'name')">Nombre</vs-th>
                 <vs-th sort @click="sort($event, 'email')">Correo</vs-th>
                 <vs-th>Celular</vs-th>
                 <vs-th sort @click="sort($event, 'sex')">Sexo</vs-th>
-                <vs-th sort @click="sort($event, 'status')">Status</vs-th> -->
+                <vs-th sort @click="sort($event, 'payment_verified')">Pagado</vs-th>
             </vs-tr>
         </template>
         <template #tbody>
@@ -43,11 +52,24 @@
                 v-for="(item, i) in participants"
                 :data="item"
             >
-                <!-- <vs-td>[[ item.user.name ]]</vs-td>
-                <vs-td>[[ item.user.email ]]</vs-td>
-                <vs-td>[[ item.user.cellphone ]]</vs-td>
-                <vs-td>[[ item.user.sex ]]</vs-td>
-                <vs-td>[[ item.status ]]</vs-td> -->
+                <vs-td>[[ item.name ]]</vs-td>
+                <vs-td>[[ item.email ]]</vs-td>
+                <vs-td>[[ item.cellphone ]]</vs-td>
+                <vs-td>[[ item.sex ]]</vs-td>
+                <vs-td>
+                    <div class="switch-wrap">
+                        <vs-switch
+                            v-model="item.payment_verified"
+                            @click.stop="updatePaymentStatus(item.id, item.payment_verified)"
+                        >
+                        </vs-switch>
+                    </div>
+                </vs-td>
+                <template #expand>
+                    <div class="expand-data">
+                        <a :href="item.payment_file" target="_blank">Comprobante de pago</a>
+                    </div>
+                </template>
             </vs-tr>
         </template>
         <template #footer v-if="totalPages > 1">
@@ -83,8 +105,40 @@
             changePostFilter: function(){
                 this.fetchParticipants();
             },
+            updatePaymentStatus: function(participantId, currentStatus){
+                let selectedPost = this.selectedPost.split('|')[1];
+                let data = {
+                    payment_verified: !currentStatus,
+                };
+                console.log('current status: ', !currentStatus);
+                let init = {
+                    'method': 'PATCH',
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-XSRF-TOKEN': this.getCookie('XSRF-TOKEN'),
+                    },
+                    body: JSON.stringify(data),
+                };
+                fetch(`/cms/api/posts/${selectedPost}/participants/${participantId}/`, init)
+                    .then(response => {
+                        if(response.status === 200){
+                            return response.json()
+                        }else{
+                            throw new Error('Algo salió mal, por favor contacta al administrador.');
+                        }
+                    })
+                    .then(data => {
+                        console.log(data);
+                    })
+                    .catch(error => {
+                        this.openNotification('top-right', 'danger', '¡¡¡ERROR!!!', error.message);
+                    });
+            },
             fetchParticipants: function(){
-                url = `/cms/api/posts/${this.selectedPost}/participants/?page=${this.currentPage}`;
+                // obtain the id of the selected post this way bc vuesax's select is broken
+                let selectedPost = this.selectedPost.split('|')[1];
+                url = `/cms/api/posts/${selectedPost}/participants/?page=${this.currentPage}`;
                 if(this.sortAttr != null){
                     url += `&orderBy=${this.sortAttr}&direction=${this.sortDir}`;
                 }
@@ -92,7 +146,7 @@
                     .then(response => response.json())
                     .then(data => {
                         this.participants = data.data;
-                        this.totalPages = data.total_pages;
+                        this.totalPages = data.meta.last_page;
                     }).catch(console.error);
             },
             sort: function(event, sortAttr){

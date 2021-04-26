@@ -20,7 +20,11 @@ class Workshop extends Model
         'end_time',
     ];
 
+    // public function participants(){
+    //     return $this->belongsToMany(Participant::class);
+    // }
+
     public function participants(){
-        return $this->belongsToMany(Participant::class);
+        return $this->belongsToMany(User::class);
     }
 }

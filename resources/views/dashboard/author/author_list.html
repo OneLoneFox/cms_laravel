@@ -6,7 +6,17 @@
     #table {
         background: #fff;
         border-radius: 16px;
-        box-shadow: 0 5px 20px 0 rgba(0,0,0,0.06);
+        box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.06);
+    }
+
+    .expand-data {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .switch-wrap{
+        display: flex;
     }
 </style>
 {% endblock styles %}
@@ -15,16 +25,11 @@
 <div id="table">
     <vs-table>
         <template #header>
-            <vs-select
-                filter
-                @change="changePostFilter"
-                placeholder="Selecciona un congreso"
-                v-model="selectedPost"
-                {% if posts is empty %}disabled{% endif %}
-            >
+            <vs-select filter @change="changePostFilter" placeholder="Selecciona un congreso" v-model="selectedPost" {%
+                if posts is empty %}disabled{% endif %}>
                 {% for post in posts %}
-                    <vs-option label="{{ post.name }}" value="{{ post.id }}">{{ post.name }}</vs-option>
-                {% endfor %}            
+                <vs-option label="{{ post.name }}" value="{{ post.name }}|{{ post.id }}">{{ post.name }}</vs-option>
+                {% endfor %}
             </vs-select>
         </template>
         <template #thead>
@@ -34,25 +39,45 @@
                 <vs-th>Celular</vs-th>
                 <vs-th sort @click="sort($event, 'sex')">Sexo</vs-th>
                 <vs-th sort @click="sort($event, 'status')">Status</vs-th>
+                <vs-th sort @click="sort($event, 'status')">Pagado</vs-th>
             </vs-tr>
         </template>
         <template #tbody>
-            <vs-tr
-                :key="i"
-                v-for="(item, i) in authors"
-                :data="item"
-            >
-                <vs-td>[[ item.user.name ]]</vs-td>
-                <vs-td>[[ item.user.email ]]</vs-td>
-                <vs-td>[[ item.user.cellphone ]]</vs-td>
-                <vs-td>[[ item.user.sex ]]</vs-td>
-                <vs-td>[[ item.status ]]</vs-td>
+            <vs-tr :key="i" v-for="(item, i) in authors" :data="item">
+                <vs-td>[[ item.name ]]</vs-td>
+                <vs-td>[[ item.email ]]</vs-td>
+                <vs-td>[[ item.cellphone ]]</vs-td>
+                <vs-td>[[ item.sex ]]</vs-td>
+                <vs-td edit @click="editActive = true, edit = item">
+                    [[ statusList[item.article.status] ]]
+                </vs-td>
+                <vs-td>
+                    <div class="switch-wrap">
+                        <vs-switch
+                            :disabled="item.article.status != 2 || item.article.payment_file == null"
+                            @click="updatePaymentStatus(item.article.id, item.article.payment_verified)"
+                            v-model="item.article.payment_verified"
+                        >
+                        </vs-switch>
+                    </div>
+                </vs-td>
             </vs-tr>
         </template>
         <template #footer v-if="totalPages > 1">
             <vs-pagination @input="changePage" v-model="currentPage" :length="totalPages" />
         </template>
     </vs-table>
+    <vs-dialog v-model="editActive">
+        <template #header>
+            Actualizar status
+        </template>
+        <vs-select v-if="edit != null" @change="updateArticleStatus(edit.article.id, edit.article.status)" block v-model="edit.article.status">
+            <vs-option label="Pendiente" :value="0">Pendiente</vs-option>
+            <vs-option label="Observaciones" :value="1">Observaciones</vs-option>
+            <vs-option label="Aceptado" :value="2">Aceptado</vs-option>
+            <vs-option label="Rechazado" :value="3">Rechazado</vs-option>
+        </vs-select>
+    </vs-dialog>
 </div>
 {% endblock content %}
 
@@ -62,8 +87,9 @@
     var vm = new Vue({
         mixins: [dashboard_mixin],
         delimiters: ['[[', ']]'],
-        data: function(){
+        data: function () {
             return {
+                testData: 0,
                 active: 'authors',
                 authors: [],
                 sortAttr: null,
@@ -72,56 +98,98 @@
                 currentPage: 1,
                 totalPages: null,
                 selectedPost: '',
+                edit: null,
+                statusList: ['Pendiente', 'Observaciones', 'Aceptado', 'Rechazado'],
+                editActive: false,
             }
         },
         methods: {
-            changePage: function(page){
+            changePage: function (page) {
                 this.currentPage = page;
                 this.fetchAuthors();
             },
-            changePostFilter: function(){
+            changePostFilter: function () {
                 this.fetchAuthors();
             },
-            fetchAuthors: function(){
-                url = `/cms/api/posts/${this.selectedPost}/authors/?page=${this.currentPage}`;
-                if(this.sortAttr != null){
+            fetchAuthors: function () {
+                // obtain the id of the selected post this way bc vuesax's select is broken
+                let selectedPost = this.selectedPost.split('|')[1];
+                url = `/cms/api/posts/${selectedPost}/authors/?page=${this.currentPage}`;
+                if (this.sortAttr != null) {
                     url += `&orderBy=${this.sortAttr}&direction=${this.sortDir}`;
                 }
                 fetch(url)
                     .then(response => response.json())
                     .then(data => {
                         this.authors = data.data;
-                        this.totalPages = data.total_pages;
+                        this.totalPages = data.meta.last_page;
                     }).catch(console.error);
             },
-            sort: function(event, sortAttr){
-                if(!this.selectedPost){
+            updateArticleStatus: function (articleId, currentStatus) {
+                let data = {
+                    status: currentStatus,
+                };
+                this.updateArticle(articleId, data).then((_) => {
+                    this.openNotification('top-right', 'success', '¡Listo!', 'Status actualizado');
+                });
+                this.editActive = false;
+            },
+            updatePaymentStatus: function (articleId, currentStatus) {
+                let data = {
+                    payment_verified: !currentStatus,
+                };
+                this.updateArticle(articleId, data);
+            },
+            updateArticle: function(articleId, data){
+                let init = {
+                    'method': 'PATCH',
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-XSRF-TOKEN': this.getCookie('XSRF-TOKEN'),
+                    },
+                    body: JSON.stringify(data),
+                };
+                return fetch(`/cms/api/articles/${articleId}/`, init)
+                    .then(response => {
+                        if(response.status === 200){
+                            return response.json()
+                        }else{
+                            throw new Error('Algo salió mal, por favor contacta al administrador.');
+                        }
+                    })
+                    .catch(error => {
+                        this.openNotification('top-right', 'danger', '¡¡¡ERROR!!!', error.message);
+                    });
+            },
+            sort: function (event, sortAttr) {
+                if (!this.selectedPost) {
                     return;
                 }
                 this.changeSort(event, sortAttr);
                 this.sortAttr = sortAttr;
                 this.fetchAuthors();
             },
-            changeSort: function(event, sortAttr){
+            changeSort: function (event, sortAttr) {
                 let el = event.target;
                 let parent = el.parentElement;
-                if(this.sortAttr != sortAttr){
+                if (this.sortAttr != sortAttr) {
                     // reset all sort arrows if sorting by a different attribute
-                    parent.querySelectorAll('th').forEach(th => {th.removeAttribute('data-sort-type')});
+                    parent.querySelectorAll('th').forEach(th => { th.removeAttribute('data-sort-type') });
                 }
                 let sortType = el.dataset['sortType'] || 'desc';
-                if(sortType == "null"){
+                if (sortType == "null") {
                     sortType = 'desc';
-                }else if(sortType == 'desc'){
+                } else if (sortType == 'desc') {
                     sortType = 'asc';
-                }else if(sortType == 'asc'){
+                } else if (sortType == 'asc') {
                     sortType = 'desc';
                 }
                 this.sortDir = sortType;
                 el.dataset['sortType'] = sortType;
             },
         },
-        created: function(){
+        created: function () {
             // this.fetchAuthors();
         }
     });

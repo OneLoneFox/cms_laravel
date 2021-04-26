@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="csrf-token" content="{{ csrf_token() }}">
+	<meta charset="utf-8">
+
+	<title>Inicio | Publicaciones</title>
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+
+	<!-- Core styles -->
+	<link rel="stylesheet" href="{{ asset('css/app.css') }}">
+	<link rel="stylesheet" href="{{ asset('resources/core/css/extra.css') }}">
+	<link rel="stylesheet" href="{{ asset('resources/core/css/landing.css') }}">
+	<script src="{{ asset('js/app.js') }}" defer></script>
+	
+</head>
+
+<body class="bg-gray-100">
+    {% block header %}
+	<header class="border-solid border-gray-200 border-b">
+        <nav class="bg-white px-8 py-5 flex justify-between items-center header">
+            {% block logo %}
+            <div class="flex items-center justify-center">
+                <span class="text-xl font-bold md:text-2x1">UTBB</span>
+			</div>
+            {% endblock logo %}
+
+            {% block navigation %}
+			<div class="flex">
+                {% if auth_check() %}
+				{{ auth_user().name }}
+                {% else %}
+				<a href="{{ route('login') }}" class="text-sm font-ui text-blue-700 py-2 px-4">Inicia sesión</a>
+				<a href="{{ route('user_register') }}" class="text-sm font-ui font-light text-white bg-blue-700 py-2 px-4 rounded-lg">Registrate</a>
+                {% endif %}
+			</div>
+            {% endblock navigation %}
+		</nav>
+        
+        {% block hero %}{% endblock hero %}
+	</header>
+    {% endblock header %}
+    {% block content %}{% endblock content %}
+</body>
+
+</html>

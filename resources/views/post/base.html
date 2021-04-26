@@ -6,12 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ post.name }} | {{ current_tab.name }}</title>
     <!-- load Poppins and Roboto fonts -->
-    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Roboto&display=swap" rel="stylesheet">
     
     <!-- <link rel="stylesheet" href="{{ asset('resources/core/css/shared.css') }}">
     <link rel="stylesheet" href="{{ asset('resources/post/css/post.css') }}"> -->
 	<link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <script src="{{ asset('js/app.js') }}" defer></script>
+
 </head>
 <body>
     <header>
@@ -35,6 +38,6 @@
             
         {% endblock content %}
     </div>
-
+    <footer class="h-16"></footer>
 </body>
 </html>

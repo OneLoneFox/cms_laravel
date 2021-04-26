@@ -3,11 +3,9 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Models\Article;
 
-class AuthorResource extends JsonResource
+class ParticipantResource extends JsonResource
 {
-    public $preserveKeys = true;
     /**
      * Transform the resource into an array.
      *
@@ -17,9 +15,13 @@ class AuthorResource extends JsonResource
     public function toArray($request)
     {
         $default = parent::toArray($request);
-        $article = Article::findOrFail($this->article);
         $overrides = [
-            'article' => new ArticleResource($article),
+            'payment_file' => $this->whenPivotLoaded('participant_post', function () {
+                return asset('storage/'.$this->pivot->payment_file);
+            }),
+            'payment_verified' => $this->whenPivotLoaded('participant_post', function () {
+                return (bool)$this->pivot->payment_verified;
+            }),
         ];
         return array_merge($default, $overrides);
     }

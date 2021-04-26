@@ -52,7 +52,11 @@ class PostController extends Controller
     }
 
     public function update(Request $request, Post $post){
-        $post->update($request->only('name', 'public'));
+        $request->validate([
+            'start_date' => 'date',
+            'end_date' => 'date|after_or_equal:start_date'
+        ]);
+        $post->update($request->only('name', 'public', 'start_date', 'end_date'));
         return new PostResource($post);
     }
     

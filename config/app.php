@@ -234,6 +234,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         
         'Twig' => TwigBridge\Facade\Twig::class,
+        'User' => App\Models\User::class,
     ],
 
 ];

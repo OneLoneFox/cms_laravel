@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\User;
+use App\Models\Article;
 
 class AuthorSeeder extends Seeder
 {
@@ -13,6 +15,9 @@ class AuthorSeeder extends Seeder
      */
     public function run()
     {
-        //
+        User::factory()
+            ->count(25)
+            ->hasArticles(1)
+            ->create(['user_type' => User::AUTHOR]);
     }
 }

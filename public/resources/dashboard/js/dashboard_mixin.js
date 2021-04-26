@@ -12,7 +12,7 @@ var dashboard_mixin = {
                 color,
                 position,
                 title: title,
-                text: message
+                text: message,
             });
         },
         getCookie: function (name) {

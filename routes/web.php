@@ -73,10 +73,12 @@ Route::get('/{postSeoName}/schedule', function(Post $post){
 ->where('postSeoName', '[a-zA-Z0-9\-]+');
 
 
-Route::get('/{postSeoName}/register', [PostRegisterController::class, 'index'])
+Route::get('/{postSeoName}/register', [PostRegisterController::class, 'create'])
 ->name('post_register')
 ->where('postSeoName', '[a-zA-Z0-9\-]+');
 
+Route::post('/{postSeoName}/register', [PostRegisterController::class, 'store'])
+->where('postSeoName', '[a-zA-Z0-9\-]+');
 
 // {postSeoName} and {tabSeoname} bindgings are inside RouteServiceProvider
 // These go at the end to prevent route collisions

@@ -7,14 +7,21 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
+use App\Http\Resources\ArticleResource;
 use App\Http\Resources\AuthorResource;
 use App\Http\Resources\AuthorCollection;
 use App\Http\Resources\TabResource;
 use App\Http\Resources\TabCollection;
-use App\Http\Resources\PostCollection;
 use App\Http\Resources\PostResource;
+use App\Http\Resources\PostCollection;
+use App\Http\Resources\ParticipantResource;
+use App\Http\Resources\ParticipantCollection;
+use App\Http\Resources\UserResource;
+use App\Http\Resources\UserCollection;
 
+use App\Models\User;
 use App\Models\Author;
+use App\Models\Article;
 use App\Models\Post;
 use App\Models\Tab;
 
@@ -40,9 +47,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::middleware('auth:sanctum')->group(function (){
     
-    Route::get('/authors', function (){
-        return new AuthorCollection(Author::orderBy('id', 'desc')->paginate(10));
-    });
+    // Route::get('/authors', function (){
+    //     return new AuthorCollection(Author::orderBy('id', 'desc')->paginate(10));
+    // });
     
     Route::prefix('/posts')->group(function (){
         Route::get('/{postId}/tabs', function ($postId){
@@ -64,17 +71,46 @@ Route::middleware('auth:sanctum')->group(function (){
         Route::post('/{post}/schedule', [PostController::class, 'updateFile']);
         
         Route::get('/{postId}/authors/', function (Request $request, $postId){
-            $orderBy = $request->get('orderBy') ?? 'users.name';
-            if($orderBy == 'id'){
-                $orderBy = 'authors.id';
-            }
+            $orderBy = $request->get('orderBy') ?? 'name';
             $orderDirection = $request->get('direction') ?? 'asc';
-            $postAuthors = Author::where('post_id', $postId)
-                                    ->join('users', 'users.id', '=', 'authors.user_id')
-                                    ->join('presentations', 'presentations.author_id', '=', 'authors.id')
-                                    ->orderBy($orderBy, $orderDirection)
-                                    ->paginate(10);
+            $postAuthors = User::select('users.*', 'articles.id as article')
+                                ->where('user_type', User::AUTHOR)
+                                ->where('posts.id', $postId)
+                                ->join('articles', 'articles.user_id', '=', 'users.id')
+                                ->join('posts', 'posts.id', '=', 'articles.post_id')
+                                ->orderBy($orderBy, $orderDirection)
+                                ->paginate(10);
             return new AuthorCollection($postAuthors);
+        });
+
+        Route::get('/{post}/participants/', function (Request $request, Post $post){
+            $orderBy = $request->get('orderBy') ?? 'name';
+            $orderDirection = $request->get('direction') ?? 'asc';
+            $participants = $post->participants()->orderBy($orderBy, $orderDirection)->paginate(10);
+            return new ParticipantCollection($participants);
+        });
+        Route::patch('/{post}/participants/{participant}/', function (Request $request, Post $post, User $participant){
+            $post->participants()->updateExistingPivot(
+                $participant->id, $request->only('payment_verified')
+            );
+            return new ParticipantResource($participant);
+        });
+    });
+
+    Route::prefix('/authors')->group(function (){
+        // Route::patch('/{authorId}/articles/{article}', function(Request $request, $authorId, Article $article){
+        //     $article->update($request->only('status', 'payment_verified'));
+        //     // fetch author after update to return fresh data
+        //     $author = Author::find($authorId);
+        //     // it do be lookin kinda fresh ngl
+        //     return new AuthorResource($author);
+        // });
+    });
+
+    Route::prefix('/articles')->group(function (){
+        Route::patch('/{article}', function(Request $request, Article $article){
+            $article->update($request->only('status', 'payment_verified'));
+            return new ArticleResource($article);
         });
     });
 
