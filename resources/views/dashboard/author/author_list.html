@@ -61,6 +61,11 @@
                         </vs-switch>
                     </div>
                 </vs-td>
+                <template #expand>
+                    <div class="expand-data">
+                        <a :href="[[ item.article.article_pdf ]]" target="_blank">[[ item.article.title ]]</a>
+                    </div>
+                </template>
             </vs-tr>
         </template>
         <template #footer v-if="totalPages > 1">
