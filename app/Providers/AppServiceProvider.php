@@ -24,6 +24,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // View::addExtension('html', 'blade');
+        Schema::defaultStringLength(191);
     }
 }
