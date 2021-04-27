@@ -13,18 +13,30 @@
 {% block content %}
 <div class="mx-auto mt-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 max-w-5xl px-4 py-8">
 	{% for post in posts %}
-	<a href="{{ route('post_view', [post.seo_name]) }}"
-		class="bg-white rounded-3xl shadow-lg hover:shadow-md transition">
+	<a 
+		href="{{ route('post_view', [post.seo_name]) }}"
+		class="bg-white rounded-3xl shadow-lg hover:shadow-md transition relative overflow-hidden"
+	>
 		<figure>
 			<div class="w-full overflow-hidden">
 				<img src='{{ asset("storage/#{post.cover_image}") }}' alt=""
 					class="w-full h-auto object-cover rounded-3xl">
 			</div>
-			<figcaption class="p-4 pt-0">
+			<figcaption class="p-4 pt-2">
+				<div class="flex items-center justify-end space-x-3">
+					<span class="font-ui text-xs text-gray-400">{{ post.start_date|date('d/m/Y') }}</span>
+					<span class="text-gray-400">—</span>
+					<span class="font-ui text-xs text-gray-400">{{ post.end_date|date('d/m/Y') }}</span>
+				</div>
 				<h3 class="font-ui">{{ post.name }}</h3>
 				<!-- <p class="text-gray-700 text-xs font-ui">{{ post.updated_at }}</p> -->
 			</figcaption>
 		</figure>
+		<div class="flex justify-end">
+			<button class="more font-ui text-sm rounded-tl-2xl px-8 py-2 text-white">
+				Ver mas
+			</button>
+		</div>
 	</a>
 	{% else %}
 	<h1>No hay publicaciones, aún.</h1>

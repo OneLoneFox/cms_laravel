@@ -46,10 +46,23 @@
 
 {% else %}
 
-<figure class="w-32 h-32">
-    <img src="{{ asset('resources/post/img/undraw_pending_approval_xuu9.svg') }}" alt="" class="w-full h-full">
-</figure>
-<h2 class="font-ui">¡Listo! ¿Ahora que?</h2>
-<p class="font-ui text-gray-800 text-center">Solo queda esperar que tu pago sea verificado.</p>
+    {% if not payment_verified %}
+
+    <figure class="w-32 h-32">
+        <img src="{{ asset('resources/post/img/undraw_pending_approval_xuu9.svg') }}" alt="" class="w-full h-full">
+    </figure>
+    <h2 class="font-ui">¡Listo! ¿Ahora que?</h2>
+    <p class="font-ui text-gray-800 text-center">Solo queda esperar que tu pago sea verificado.</p>
+
+    {% else %}
+
+    <figure class="w-32 h-32">
+        <img src="{{ asset('resources/post/img/undraw_approve_qwp7.svg') }}" alt="" class="w-full h-full">
+    </figure>
+    <h2 class="font-ui">¡Todo listo!</h2>
+    <p class="font-ui text-gray-800 text-center">Te esperamos entre el {{ post.start_date|date("d/m/Y") }} y {{ post.end_date|date("d/m/Y") }}.</p>
+
+    {% endif %}
+
 {% endif %}
     

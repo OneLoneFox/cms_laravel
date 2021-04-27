@@ -33,7 +33,18 @@
             {% block navigation %}
 			<div class="flex">
                 {% if auth_check() %}
-				{{ auth_user().name }}
+				<div class="profile relative" x-data="{open: false}" @click="open = true">
+					<div class="info">
+						<p class="name">{{ auth_user().name }}</p>
+						<p class="email">{{ auth_user().email }}</p>
+					</div>
+					<div id="profile-menu" x-show="open" @click.away="open = false">
+						<a href="{{ route('logout') }}" class="menu-item">
+							<i class='bx bx-door-open' ></i>
+							Cerrar sesión
+						</a>
+					</div>
+				</div>
                 {% else %}
 				<a href="{{ route('login') }}" class="text-sm font-ui text-blue-700 py-2 px-4">Inicia sesión</a>
 				<a href="{{ route('user_register') }}" class="text-sm font-ui font-light text-white bg-blue-700 py-2 px-4 rounded-lg">Registrate</a>

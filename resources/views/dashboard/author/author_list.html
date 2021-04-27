@@ -13,6 +13,7 @@
         display: flex;
         align-items: center;
         justify-content: flex-end;
+        gap: 16px;
     }
 
     .switch-wrap{
@@ -55,7 +56,7 @@
                     <div class="switch-wrap">
                         <vs-switch
                             :disabled="item.article.status != 2 || item.article.payment_file == null"
-                            @click="updatePaymentStatus(item.article.id, item.article.payment_verified)"
+                            @click.stop="updatePaymentStatus(item.article.id, item.article.payment_verified)"
                             v-model="item.article.payment_verified"
                         >
                         </vs-switch>
@@ -63,7 +64,14 @@
                 </vs-td>
                 <template #expand>
                     <div class="expand-data">
-                        <a :href="[[ item.article.article_pdf ]]" target="_blank">[[ item.article.title ]]</a>
+                        <div v-if="item.article.payment_file">
+                            <p>&nbsp</p>
+                            <a :href="[[ item.article.payment_file ]]" target="_blank">Comprobante de pago</a>
+                        </div>
+                        <div>
+                            <p>Articulo</p>
+                            <a :href="[[ item.article.article_pdf ]]" target="_blank">[[ item.article.title ]]</a>
+                        </div>
                     </div>
                 </template>
             </vs-tr>

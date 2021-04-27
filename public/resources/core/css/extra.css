@@ -14,3 +14,56 @@
     background-size: 80vw 80vw;
     background-repeat: no-repeat;
 }
+
+.profile{
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+    .profile > .info{
+        margin-left: 15px;
+        max-width: 200px;
+        overflow: hidden;
+    }
+        .profile > .info > *{
+            color: #2C3E50;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin: 0;
+        }
+        .profile > .info > .name{
+            font-weight: bold;
+        }
+        .profile > .info > .email{
+            font-size: 12px;
+            opacity: .6;
+        }
+
+#profile-menu{
+    right: 0;
+    top: calc(100% + 12px);
+    position: absolute;
+    padding: 5px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 2px 2px 8px 0 rgba(0,0,0,.09);
+    min-width: 200px;
+    z-index: 3;
+}
+    #profile-menu > .menu-item{
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: #2C3E50;
+        padding: 10px 15px;
+        border-radius: 8px;
+        transition: all 250ms ease;
+    }
+    #profile-menu > .menu-item:hover{
+        background: rgb(247, 249, 250);
+    }
+
+.more{
+    background: #E84B60;
+}

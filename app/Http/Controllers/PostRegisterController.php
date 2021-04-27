@@ -18,15 +18,28 @@ class PostRegisterController extends Controller
         $user = Auth::user();
         if($user->user_type == User::PARTICIPANT){
             $isRegistered = $post->participants->contains($user->id);
+            $paymentVerified = $post->participants()
+                ->wherePivot('user_id', $user->id)
+                ->first()
+                ->pivot
+                ->payment_verified;
+            
         }else{
             $article = Article::where('user_id', $user->id)->where('post_id', $post->id)->first();
+            $paymentVerified = $article->payment_verified;
             $isRegistered = $article !== null;
+            $paymentUploaded = $article->payment_file ? true : false;
+            // echo "<pre>";
+            // var_dump($isRegistered);
+            // var_dump($article);die();
         }
         return view('post.post_register', [
             'post' => $post,
             'front_tab' => $frontTab,
             'tabs' => $tabs,
             'is_registered' => $isRegistered,
+            'payment_verified' => $paymentVerified,
+            'payment_uploaded' => $paymentUploaded ?? null,
             'article' => $article ?? null,
         ]);
     }
@@ -60,8 +73,21 @@ class PostRegisterController extends Controller
     }
 
     private function signAuthor(Request $request, Post $post, User $author){
-        // prevent author from registering multiple times
-        if(Article::where('post_id', $post->id)->where('user_id', $author->id)->exists()){
+        $article = Article::where('post_id', $post->id)->where('user_id', $author->id)->first();
+        if($article != null){
+            // author article is already registered
+            if($article->payment_file){
+                // author has uploaded payment file for verification CANCEL POST OPERATION
+                return;
+            }
+            $request->validate([
+                'payment_file' => 'required|file|mimetypes:image/jpeg,image/png,application/pdf',
+            ]);
+            $file = $request->file('payment_file');
+            $fileLocation = $file->storePublicly("posts/{$post->id}/payments");
+            $article->update([
+                'payment_file' => $fileLocation,
+            ]);
             return;
         }
         $request->validate([

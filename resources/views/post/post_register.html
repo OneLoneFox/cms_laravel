@@ -2,8 +2,6 @@
 {% import 'macros/forms.html' as forms %}
 
 {% block content %}
-
-    
     <h1>Formulario de registro de {{ auth_user().user_type == constant('App\\Models\\User::PARTICIPANT') ? 'participantes' : 'autores/ponentes' }}</h1>
     <h2>{{ post.name }}</h2>
     <div class="flex flex-col items-center space-y-5 w-full sm:max-w-md mx-auto mt-6 px-10 py-10 bg-white shadow-softxl overflow-hidden sm:rounded-lg">
