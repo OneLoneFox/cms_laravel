@@ -126,6 +126,9 @@
         margin-bottom: 20px;
         gap: 16px;
     }
+    .con-content .setting.privacy {
+        margin-bottom: 40px;
+    }
     .con-content .current-file{
         margin-bottom: 20px;
     }
@@ -276,7 +279,7 @@
         <h4 class="not-margin">Ajustes de la publicación</h4>
     </template>
     <div class="con-content">
-        <div class="setting">
+        <div class="setting privacy">
             <label>Privacidad</label>
             <vs-switch v-model="postIsPublic">
                 <template #off>
@@ -417,6 +420,7 @@
                         return;
                     }
                     this.updatePostButtonLoading = false;
+                    this.openNotification('bottom-right', null, '¡Listo!', 'Datos actualizados correctamente.');
                 });
             },
             updatePost: function(){

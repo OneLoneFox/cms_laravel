@@ -63,7 +63,7 @@ class PostViewController extends Controller
             },
             'list' => function($style, $items){
                 return Twig::render('/post/components/list.html', [
-                    'style' => $style == 'ordered' ? 'ol' : 'li',
+                    'style' => $style == 'ordered' ? 'ol' : 'ul',
                     'items' => $items,
                 ]);
             },

@@ -18,20 +18,20 @@ class PostRegisterController extends Controller
         $user = Auth::user();
         if($user->user_type == User::PARTICIPANT){
             $isRegistered = $post->participants->contains($user->id);
-            $paymentVerified = $post->participants()
+            $participantInPost = $post->participants()
                 ->wherePivot('user_id', $user->id)
-                ->first()
-                ->pivot
-                ->payment_verified;
+                ->first();
+            if($participantInPost){
+                $paymentVerified = $participantInPost->pivot->payment_verified;
+            }else{
+                $paymentVerified = false;
+            }
             
         }else{
             $article = Article::where('user_id', $user->id)->where('post_id', $post->id)->first();
-            $paymentVerified = $article->payment_verified;
+            $paymentVerified = $article->payment_verified ?? false;
             $isRegistered = $article !== null;
-            $paymentUploaded = $article->payment_file ? true : false;
-            // echo "<pre>";
-            // var_dump($isRegistered);
-            // var_dump($article);die();
+            $paymentUploaded = $article->payment_file ?? null ? true : false;
         }
         return view('post.post_register', [
             'post' => $post,

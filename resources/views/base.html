@@ -39,8 +39,12 @@
 						<p class="email">{{ auth_user().email }}</p>
 					</div>
 					<div id="profile-menu" x-show="open" @click.away="open = false">
+						{% if auth_user().user_type == constant('App\\Models\\User::ADMIN') %}
+						<a href="{{ route('dashboard.home') }}" class="menu-item">
+							Dashboard
+						</a>	
+						{% endif %}
 						<a href="{{ route('logout') }}" class="menu-item">
-							<i class='bx bx-door-open' ></i>
 							Cerrar sesión
 						</a>
 					</div>
@@ -57,6 +61,7 @@
 	</header>
     {% endblock header %}
     {% block content %}{% endblock content %}
+    <footer class="h-16"></footer>
 </body>
 
 </html>

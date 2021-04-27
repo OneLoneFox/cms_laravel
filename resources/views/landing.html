@@ -15,12 +15,12 @@
 	{% for post in posts %}
 	<a 
 		href="{{ route('post_view', [post.seo_name]) }}"
-		class="bg-white rounded-3xl shadow-lg hover:shadow-md transition relative overflow-hidden"
+		class="flex flex-col bg-white rounded-3xl shadow-lg hover:shadow-md transition relative overflow-hidden"
 	>
 		<figure>
-			<div class="w-full overflow-hidden">
+			<div class="w-full p-3">
 				<img src='{{ asset("storage/#{post.cover_image}") }}' alt=""
-					class="w-full h-auto object-cover rounded-3xl">
+					class="w-full h-auto object-cover rounded-2xl">
 			</div>
 			<figcaption class="p-4 pt-2">
 				<div class="flex items-center justify-end space-x-3">
@@ -32,8 +32,8 @@
 				<!-- <p class="text-gray-700 text-xs font-ui">{{ post.updated_at }}</p> -->
 			</figcaption>
 		</figure>
-		<div class="flex justify-end">
-			<button class="more font-ui text-sm rounded-tl-2xl px-8 py-2 text-white">
+		<div class="flex justify-end mt-auto">
+			<button class="more font-ui text-sm rounded-tl-3xl px-8 py-2 text-white">
 				Ver mas
 			</button>
 		</div>
