@@ -35,11 +35,13 @@ class RegisteredUserController extends Controller
                 'required',
                 Rule::in(User::USER_SEX_CHOICES),
             ],
-            'password' => 'required|string|confirmed|min:8',
+            'password' => 'required|string|confirmed|min:8|regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x]).*$/',
             'user_type' => [
                 'required',
                 Rule::in(User::PUBLIC_USER_TYPE_CHOICES),
             ],
+        ], [
+            'password.regex' => 'La contraseña no cumple con los requisitos, al menos una letra y al menos un número.'
         ]);
         $user = User::create([
             'name' => $request->name,
