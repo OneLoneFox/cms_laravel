@@ -21,6 +21,13 @@ class Article extends Model
         self::REJECTED,
     ];
 
+    const STATUS_MAP_ES = [
+        self::PENDING => 'Pendiente',
+        self::OBSERVATIONS => 'Requiere observaciones',
+        self::ACCEPTED => 'Aceptado',
+        self::REJECTED => 'Rechazado',
+    ];
+
     protected $fillable = [
         'title',
         'article_pdf',

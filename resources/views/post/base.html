@@ -12,28 +12,58 @@
     
     <!-- <link rel="stylesheet" href="{{ asset('resources/core/css/shared.css') }}">
     <link rel="stylesheet" href="{{ asset('resources/post/css/post.css') }}"> -->
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
 	<link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <script src="{{ asset('js/app.js') }}" defer></script>
 
 </head>
 <body>
-    <header>
-        <nav id="nav" class="flex items-center justify-between pt-6 px-4 sm:px-6 lg:px-8">
-            <div class="navigation-link home-link">
-                <a href="{{ route('post_view', [post.seo_name]) }}">{{ front_tab.name|title }}</a>
+    <header class="fixed md:relative w-full top-0 left-0">
+        <div style="z-index: -1;" class="bdr absolute w-full h-full top-0 left-0 bg-white bg-opacity-70 backdrop-filter backdrop-blur-3xl md:backdrop-filter-none md:bg-opacity-0"></div>
+        <nav id="nav" class="flex items-center justify-center py-6 px-4 sm:px-6 lg:px-8">
+            <div class="home-link mr-auto">
+                <a href="{{ route('home') }}" class="p-3">Inicio</a>
             </div>
-            <div class="hidden md:block md:ml-10 md:pr-4 md:space-x-8">
+            <div class="absolute justify-self-center navigation-link front-link hidden md:block text-xl">
+                <a href="{{ route('post_view', [post.seo_name]) }}" class="p-3">{{ post.name|title }}</a>
+            </div>
+            <div class="hidden ml-auto md:block md:pr-4 md:space-x-8">
                 {% for tab in tabs %}
-                    <a class="font-medium text-gray-500 hover:text-gray-900" href="{{ route('post_view', [post.seo_name, tab.seo_name]) }}">{{ tab.name|title }}</a>
+                    <a class="font-medium text-gray-500 hover:text-gray-900 p-3" href="{{ route('post_view', [post.seo_name, tab.seo_name]) }}">{{ tab.name|title }}</a>
                 {% endfor %}
                 {% if post.schedule_pdf is not empty %}
-                    <a class="font-medium text-gray-500 hover:text-gray-900" href="{{ route('post_schedule', [post.seo_name]) }}">Descarga el programa</a>
+                    <a class="font-medium text-gray-500 hover:text-gray-900 p-3" href="{{ route('post_schedule', [post.seo_name]) }}">Descarga el programa</a>
                 {% endif %}
                 <a href="{{ route('post_register', [post.seo_name]) }}" class="font-medium text-indigo-600 hover:text-indigo-500">Registrate</a>
             </div>
+            <div class="block md:hidden" x-data="{menuOpen: false}">
+                <i class='bx bx-menu-alt-right text-2xl' x-on:click="menuOpen = true"></i>
+                <div 
+                    x-show.transition.opacity="menuOpen"
+                    class="bg-white bg-opacity-60 block md:pointer-events-none h-full w-full z-50 fixed top-0 left-0 backdrop-filter backdrop-blur-3xl"
+                >
+                    <div class="flex flex-col items-center h-full justify-center px-4 py-12 relative">
+                        <i class='bx bx-x text-2xl absolute top-6 right-4' x-on:click="menuOpen = false"></i>
+                        <a 
+                            href="{{ route('post_view', [post.seo_name]) }}"
+                            class="font-ui text-md px-3 py-4 font-bold"
+                        >
+                            {{ post.name|upper }}
+                        </a>
+                        {% for tab in tabs %}
+                        <a 
+                            href="{{ route('post_view', [post.seo_name, tab.seo_name]) }}"
+                            class="font-ui text-md px-3 py-4 font-bold tracking-wide"
+                        >
+                            {{ tab.name|title }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
         </nav>
     </header>
-    <div id="post-body" class="max-w-4xl mx-auto space-y-4 font-sans">
+    <div id="post-body" class="mt-20 md:mt-0 p-4 max-w-4xl mx-auto space-y-4 font-sans">
         {% block content %}
             
         {% endblock content %}

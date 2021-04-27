@@ -1,8 +1,9 @@
 {% extends 'dashboard/base.html' %}
     
+{% block header_title %}Inicio{% endblock header_title %}
 
 {% block content %}
-    <h1>Welcome {{ auth_user().name }}</h1>
+    <h1>Bienvenido {{ auth_user().name }}</h1>
 {% endblock content %}
 
 {% block scripts %}

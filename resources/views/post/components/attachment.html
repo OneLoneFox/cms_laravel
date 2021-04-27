@@ -1,3 +1,9 @@
-<div class="shadow-md rounded-lg p-5 attachment">
-    <a class="flex items-center justify-center w-full h-full" href="{{ file.url }}">{{ title }}</a>
+<div class="rounded-lg p-5 attachment border border-solid border-gray-200">
+    <a class="flex items-center justify-between w-full h-full" href="{{ file.url }}">
+        <div>
+            <p class="font-ui">{{ title }}</p>
+            <p class="font-ui text-sm text-gray-400 mt-1">{{ size }}</p>
+        </div>
+        <i class='ml-auto bx bx-download text-xl'></i>
+    </a>
 </div>

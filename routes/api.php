@@ -25,6 +25,8 @@ use App\Models\Article;
 use App\Models\Post;
 use App\Models\Tab;
 
+use App\Notifications\ParticipantPaid;
+
 use App\Http\Controllers\TabImageUploadController;
 use App\Http\Controllers\TabAttachmentUploadController;
 use App\Http\Controllers\TabUpdateController;
@@ -93,6 +95,10 @@ Route::middleware('auth:sanctum')->group(function (){
             $post->participants()->updateExistingPivot(
                 $participant->id, $request->only('payment_verified')
             );
+            // send email if payment gets verified
+            if($request->payment_verified == true){
+                $participant->notify(new ParticipantPaid($participant, $post));
+            }
             return new ParticipantResource($participant);
         });
     });

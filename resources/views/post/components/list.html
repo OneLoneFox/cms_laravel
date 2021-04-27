@@ -1,6 +1,6 @@
 
-<{{ style|raw }}>
+<{{ style }} class="{{ style == 'ul' ? 'list-disc' : 'list-decimal' }} ml-4">
 {% for item in items %}
-    <li>{{ item|raw }}</li>
+    <li class="py-2">{{ item|raw }}</li>
 {% endfor %}
-</{{ style|raw }}>
+</{{ style }}>

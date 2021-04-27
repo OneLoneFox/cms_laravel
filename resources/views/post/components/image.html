@@ -1,4 +1,4 @@
-<figure class="img{{ stretched ? ' stretched' }}">
-    <img src="{{ file.url }}" alt="">
-    <figcaption>{{ caption }}</figcaption>
+<figure class="img{{ stretched ? ' stretched' }} flex justify-center flex-col items-center">
+    <img src="{{ file.url }}" alt="" class="rounded-2xl">
+    <figcaption class="text-sm self-end text-gray-400 font-ui mt-2">{{ caption }}</figcaption>
 </figure>
