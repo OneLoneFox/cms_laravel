@@ -58,6 +58,15 @@
                             {{ tab.name|title }}
                         </a>
                         {% endfor %}
+                        {% if post.schedule_pdf is not empty %}
+                        <a class="font-ui text-md font-bold px-3 py-4" href="{{ route('post_schedule', [post.seo_name]) }}">Descarga el programa</a>
+                        {% endif %}
+                        <a 
+                            href="{{ route('post_register', [post.seo_name]) }}" 
+                            class="font-ui text-md font-bold text-indigo-600 px-3 py-4"
+                        >
+                            Registrate
+                        </a>
                     </div>
                 </div>
             </div>
