@@ -11,7 +11,7 @@ use App\Models\User;
 use App\Models\Post;
 use App\Models\Article;
 
-class AuthorArticleAccepted extends Notification
+class AuthorArticleUpdated extends Notification
 {
     use Queueable;
 
@@ -49,10 +49,13 @@ class AuthorArticleAccepted extends Notification
         $authorName = explode(' ', $this->author->name)[0];
         $postName = $this->post->name;
         $status = Article::STATUS_MAP_ES[$this->article->status];
+        $postUrl = route('post_register', [$this->post->seo_name]);
+
         return (new MailMessage)
+                    ->subject('Status del articulo actualizado')
                     ->greeting('Hola ', $authorName)
                     ->line("Tu articulo para $postName ha sido revisado y el status ha sido actualizado.")
-                    ->line('El status de tu articulo es: '.$this->article->status)
+                    ->line('El status de tu articulo ahora es: '.$status)
                     ->action('Ver congreso', $postUrl);
     }
 

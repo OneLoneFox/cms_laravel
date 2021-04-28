@@ -31,10 +31,10 @@ class Post extends Model
         return $this->hasMany(Article::class);
     }
 
+    /* Unused method <<BROKEN>> */
     public function authors(){
         return $this->belongsToMany(User::class);
     }
-
 
     public function participants(){
         return $this->belongsToMany(User::class, 'participant_post')->withPivot('payment_file', 'payment_verified');

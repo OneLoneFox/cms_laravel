@@ -7,6 +7,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+use App\Models\User;
+use App\Models\Post;
+
 class AuthorPaid extends Notification
 {
     use Queueable;
@@ -46,6 +49,7 @@ class AuthorPaid extends Notification
         $postUrl = route('post_register', [$this->post->seo_name]);
 
         return (new MailMessage)
+                    ->subject('Pago para el congreso verificado')
                     ->greeting('Hola '.$authorName)
                     ->line('Tu pago para el congreso '.$postName.' ha sido verificado con exito.')
                     ->action('Ver congreso', $postUrl)

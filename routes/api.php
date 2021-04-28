@@ -26,6 +26,8 @@ use App\Models\Post;
 use App\Models\Tab;
 
 use App\Notifications\ParticipantPaid;
+use App\Notifications\AuthorPaid;
+use App\Notifications\AuthorArticleUpdated;
 
 use App\Http\Controllers\TabImageUploadController;
 use App\Http\Controllers\TabAttachmentUploadController;
@@ -115,7 +117,18 @@ Route::middleware('auth:sanctum')->group(function (){
 
     Route::prefix('/articles')->group(function (){
         Route::patch('/{article}', function(Request $request, Article $article){
+            $oldStatus = $article->status;
+            $oldPaymentStatus = $article->payment_verified;;
             $article->update($request->only('status', 'payment_verified'));
+            $newStatus = $article->status;
+            $newPaymentStatus = $article->payment_verified;
+            // send an email with the updated status
+            if($oldStatus != $newStatus){
+                $article->author->notify(new AuthorArticleUpdated($article->author, $article, $article->post));
+            }
+            if($oldPaymentStatus != $newPaymentStatus && $newPaymentStatus == true){
+                $article->author->notify(new AuthorPaid($article->author, $article->post));
+            }
             return new ArticleResource($article);
         });
     });

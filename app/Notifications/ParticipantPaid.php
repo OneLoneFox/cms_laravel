@@ -49,6 +49,7 @@ class ParticipantPaid extends Notification
         $postUrl = route('post_register', [$this->post->seo_name]);
 
         return (new MailMessage)
+                    ->subject('Pago para el congreso verificado')
                     ->greeting('Hola '.$participantName)
                     ->line('Tu pago para el congreso '.$postName.' ha sido verificado con exito.')
                     ->action('Ver congreso', $postUrl)

@@ -23,7 +23,7 @@ class Article extends Model
 
     const STATUS_MAP_ES = [
         self::PENDING => 'Pendiente',
-        self::OBSERVATIONS => 'Requiere observaciones',
+        self::OBSERVATIONS => 'Onservaciones, requiere revisión.',
         self::ACCEPTED => 'Aceptado',
         self::REJECTED => 'Rechazado',
     ];
@@ -38,8 +38,8 @@ class Article extends Model
         'post_id',
     ];
 
-    public function authors(){
-        return $this->belongsTo(User::class);
+    public function author(){
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function post(){

@@ -24,17 +24,17 @@
             <div class="home-link mr-auto">
                 <a href="{{ route('home') }}" class="p-3">Inicio</a>
             </div>
-            <div class="absolute justify-self-center navigation-link front-link hidden md:block text-xl">
-                <a href="{{ route('post_view', [post.seo_name]) }}" class="p-3">{{ post.name|title }}</a>
-            </div>
-            <div class="hidden ml-auto md:block md:pr-4 md:space-x-8">
+            {# <div class="navigation-link front-link hidden md:block text-xl">
+            </div> #}
+            <div class="hidden ml-auto md:block md:pr-4">
+                <a href="{{ route('post_view', [post.seo_name]) }}" class="font-medium text-gray-500 hover:text-gray-900 p-3">{{ post.name|title }}</a>
                 {% for tab in tabs %}
-                    <a class="font-medium text-gray-500 hover:text-gray-900 p-3" href="{{ route('post_view', [post.seo_name, tab.seo_name]) }}">{{ tab.name|title }}</a>
+                    <a class="font-medium text-gray-500 hover:text-gray-900 py-3 px-6" href="{{ route('post_view', [post.seo_name, tab.seo_name]) }}">{{ tab.name|title }}</a>
                 {% endfor %}
                 {% if post.schedule_pdf is not empty %}
-                    <a class="font-medium text-gray-500 hover:text-gray-900 p-3" href="{{ route('post_schedule', [post.seo_name]) }}">Descarga el programa</a>
+                    <a class="font-medium text-gray-500 hover:text-gray-900 py-3 px-6" href="{{ route('post_schedule', [post.seo_name]) }}">Descarga el programa</a>
                 {% endif %}
-                <a href="{{ route('post_register', [post.seo_name]) }}" class="font-medium text-indigo-600 hover:text-indigo-500">Registrate</a>
+                <a href="{{ route('post_register', [post.seo_name]) }}" class="font-medium text-indigo-600 hover:text-indigo-500 py-3 px-6">Registrate</a>
             </div>
             <div class="block md:hidden" x-data="{menuOpen: false}">
                 <i class='bx bx-menu-alt-right text-2xl' x-on:click="menuOpen = true"></i>
